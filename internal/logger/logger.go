@@ -8,28 +8,27 @@ import (
 )
 
 type Logger struct {
-	file   *os.File
-	prefix string
-	mu     sync.Mutex
+	file *os.File
+	mu   sync.Mutex
 }
 
 var logfile string = "streamdeckVR.log"
 
-func NewLogger(filepath, prefix string) (*Logger, error) {
+func NewLogger(filepath string) (*Logger, error) {
 
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open log file %s: %w", filepath, err)
 	}
 
-	return &Logger{file: file, prefix: prefix}, nil
+	return &Logger{file: file}, nil
 }
 
 func (l *Logger) Log(message string) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	timestamp := time.Now().Format(time.RFC3339)
-	_, err := fmt.Fprintf(l.file, "%s %s%s\n", timestamp, l.prefix, message)
+	_, err := fmt.Fprintf(l.file, "%s %s\n", timestamp, message)
 	return err
 }
 
