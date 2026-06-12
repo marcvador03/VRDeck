@@ -20,10 +20,11 @@ func main() {
 		fmt.Fprintf(os.Stderr, "[Logger Error] %v\n", err)
 		os.Exit(1)
 	}
-	_, err = p.NewProfileList(path, log)
+	ProfileList, err := p.NewProfileList(path, log)
 	if err != nil {
 		log.Error(err)
 	}
+	fmt.Println(ProfileList.Profiles)
 
 	// Create an instance of the app structure
 	// app := NewApp()

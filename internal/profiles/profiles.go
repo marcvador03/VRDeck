@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	l "streamdeckVR/internal/logger"
+	"strings"
 )
 
 type Profile struct {
@@ -20,10 +21,18 @@ type Pages struct {
 }
 
 type ProfileList struct {
-	profiles []Profile
+	Profiles []Profile
+}
+
+func newProfile(UUID, name string) Profile {
+	return Profile{
+		UUID: UUID,
+		name: name,
+	}
 }
 
 func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
+	var ProfileList ProfileList
 	profilev3, err := os.ReadDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read path %s: %w", path, err)
@@ -41,11 +50,11 @@ func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 			if err := json.Unmarshal(data, &manifest); err != nil {
 				log.Error(err)
 			}
-			// Extract the "Name" field
 			if name, ok := manifest["Name"].(string); ok {
-				fmt.Printf("Name: %s\n", name)
+				p := newProfile(strings.TrimSuffix(dir.Name(), "."), name)
+				ProfileList.Profiles = append(ProfileList.Profiles, p)
 			} else {
-				fmt.Println("Field 'name' not found or not a string")
+				log.Error(fmt.Errorf("Field 'name' not found or not a string"))
 			}
 		}
 		// fmt.Printf(
@@ -56,7 +65,7 @@ func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 		// )
 		// fmt.Println(dir.Name())
 	}
-	return &ProfileList{}, nil
+	return &ProfileList, nil
 }
 
 func profileListScan(path string) ([]os.DirEntry, error) {
