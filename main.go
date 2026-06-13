@@ -24,6 +24,7 @@ func main() {
 	if err != nil {
 		log.Error(err)
 	}
+	fmt.Printf("\nList of Profiles: \n\n")
 	fmt.Println(ProfileList.Profiles)
 
 	// Create an instance of the app structure

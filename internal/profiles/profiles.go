@@ -10,25 +10,40 @@ import (
 
 type Profile struct {
 	UUID     string
-	name     string
+	Name     string
 	pagesNum int
-	page     []Pages
+	Pages    []*Pages
 }
 
 type Pages struct {
-	profile *Profile
-	UUID    string
+	UUID string
 }
 
 type ProfileList struct {
 	Profiles []Profile
 }
 
-func newProfile(UUID, name string) Profile {
-	return Profile{
-		UUID: UUID,
-		name: name,
+func newProfile(UUID string, data []byte) (Profile, error) {
+	var profile Profile
+	var rawData struct {
+		Name  string `json:"Name"`
+		Pages struct {
+			Pages []string `json:"Pages"`
+		} `json:"Pages"`
 	}
+	if err := json.Unmarshal(data, &rawData); err != nil {
+		return profile, err
+	}
+	profile.UUID = UUID
+	profile.Name = rawData.Name
+	profile.pagesNum = len(rawData.Pages.Pages)
+	for _, puuid := range rawData.Pages.Pages {
+		page := &Pages{
+			UUID: puuid,
+		}
+		profile.Pages = append(profile.Pages, page)
+	}
+	return profile, nil
 }
 
 func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
@@ -41,20 +56,15 @@ func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 	for _, dir := range profilev3 {
 		if dir.IsDir() {
 			manifestPath := path + "\\" + dir.Name() + "\\" + "manifest.json"
-			var manifest map[string]interface{}
 			data, err := os.ReadFile(manifestPath)
 			if err != nil {
 				log.Error(err)
 				continue
 			}
-			if err := json.Unmarshal(data, &manifest); err != nil {
+			if p, err := newProfile(strings.TrimSuffix(dir.Name(), "."), data); err != nil {
 				log.Error(err)
-			}
-			if name, ok := manifest["Name"].(string); ok {
-				p := newProfile(strings.TrimSuffix(dir.Name(), "."), name)
-				ProfileList.Profiles = append(ProfileList.Profiles, p)
 			} else {
-				log.Error(fmt.Errorf("Field 'name' not found or not a string"))
+				ProfileList.Profiles = append(ProfileList.Profiles, p)
 			}
 		}
 		// fmt.Printf(
