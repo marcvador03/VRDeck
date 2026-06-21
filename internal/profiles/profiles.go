@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	l "streamdeckVR/internal/logger"
-	"strings"
 )
 
 type Profile struct {
@@ -15,15 +15,12 @@ type Profile struct {
 	Pages    []*Pages
 }
 
-type Pages struct {
-	UUID string
-}
-
 type ProfileList struct {
+	path     string
 	Profiles []Profile
 }
 
-func newProfile(UUID string, data []byte) (Profile, error) {
+func newProfile(UUID string, path string, data []byte, log *l.Logger) (Profile, error) {
 	var profile Profile
 	var rawData struct {
 		Name  string `json:"Name"`
@@ -38,16 +35,19 @@ func newProfile(UUID string, data []byte) (Profile, error) {
 	profile.Name = rawData.Name
 	profile.pagesNum = len(rawData.Pages.Pages)
 	for _, puuid := range rawData.Pages.Pages {
-		page := &Pages{
-			UUID: puuid,
+		page, err := NewPage(puuid, filepath.Join(path, UUID), log)
+		if err != nil {
+			continue
 		}
-		profile.Pages = append(profile.Pages, page)
+		profile.Pages = append(profile.Pages, &page)
 	}
 	return profile, nil
 }
 
 func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
-	var ProfileList ProfileList
+	ProfileList := ProfileList{
+		path: path,
+	}
 	profilev3, err := os.ReadDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read path %s: %w", path, err)
@@ -61,19 +61,12 @@ func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 				log.Error(err)
 				continue
 			}
-			if p, err := newProfile(strings.TrimSuffix(dir.Name(), "."), data); err != nil {
+			if p, err := newProfile(dir.Name(), path, data, log); err != nil {
 				log.Error(err)
 			} else {
 				ProfileList.Profiles = append(ProfileList.Profiles, p)
 			}
 		}
-		// fmt.Printf(
-		// 	"Name: %s,  : %v, Type: %v\n",
-		// 	dir.Name(),
-		// 	dir.IsDir(),
-		// 	dir.Type(),
-		// )
-		// fmt.Println(dir.Name())
 	}
 	return &ProfileList, nil
 }
