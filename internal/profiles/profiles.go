@@ -44,6 +44,32 @@ func newProfile(UUID string, path string, data []byte, log *l.Logger) (Profile, 
 	return profile, nil
 }
 
+func modifyProfileManifest(manifestPath string, data []byte, name string) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["InstalledByPluginUUID"].(string); !ok {
+		raw["InstalledByPluginUUID"] = "com.streamdeckVR.plugin"
+		if _, ok := raw["PreconfiguredName"].(string); !ok {
+			raw["PreconfiguredName"] = name
+		}
+		if _, ok := raw["ReadOnly"].(string); !ok {
+			raw["ReadOnly"] = false
+		}
+	} else {
+		return fmt.Errorf("Profile is already owned by a plugin %s", raw["InstalledByPluginUUID"])
+	}
+	newJson, err := json.Marshal(raw)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(manifestPath, newJson, 0644); err != nil {
+		return fmt.Errorf("Error while updating Profile manifest: %w", err)
+	}
+	return nil
+}
+
 func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 	ProfileList := ProfileList{
 		path: path,
@@ -65,6 +91,9 @@ func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 				log.Error(err)
 			} else {
 				ProfileList.Profiles = append(ProfileList.Profiles, p)
+				if err := modifyProfileManifest(manifestPath, data, p.Name); err != nil {
+					log.Error(err)
+				}
 			}
 		}
 	}
