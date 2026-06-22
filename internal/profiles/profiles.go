@@ -70,9 +70,3 @@ func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 	}
 	return &ProfileList, nil
 }
-
-func profileListScan(path string) ([]os.DirEntry, error) {
-	files, err := os.ReadDir(path)
-
-	return files, err
-}
