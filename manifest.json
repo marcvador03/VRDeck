@@ -4,7 +4,7 @@
 	"Author": "Marc Fleury",
 	"Category": "MSFS",
 	"CategoryIcon": "imgs/plugin/category-icon",
-	"CodePath": "bin/streamdeckVR.exe",
+	"CodePath": "streamdeckVR.exe",
 	"Description": "A Go plugin for Stream Deck to be used in MSFS in VR",
 	"Icon": "imgs/plugin/marketplace",
 	"SDKVersion": 3,
