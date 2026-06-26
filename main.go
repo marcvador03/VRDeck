@@ -3,13 +3,19 @@ package main
 import (
 	"embed"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 
 	"streamdeckVR/internal/logger"
 	p "streamdeckVR/internal/profiles"
 
+	c "streamdeckVR/internal/connection"
+	p "streamdeckVR/internal/profiles"
+
 	"go.uber.org/zap/zapcore"
+
+	"github.com/gorilla/websocket"
 )
 
 //go:embed all:frontend/dist
@@ -31,6 +37,10 @@ func inspect_data(profileList p.ProfileList) {
 	}
 }
 
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool { return true },
+}
+
 func main() {
 	path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "bProfilesV3")
 	logger.InitLogger("app.log", zapcore.DebugLevel)
@@ -43,6 +53,9 @@ func main() {
 	}
 	inspect_data(*ProfileList)
 
+	c.InitiateStreamDeckConnection(log)
+
+	//wails default code
 	// Create an instance of the app structure
 	// app := NewApp()
 
