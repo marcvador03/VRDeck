@@ -36,7 +36,7 @@ func main() {
 	logger.InitLogger("app.log", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
-	ProfileList, err := p.NewProfileList(path, log)
+	ProfileList, err := p.NewProfileList(path)
 	if err != nil {
 		log.Error("Stopping, error encountered")
 		os.Exit(1)
