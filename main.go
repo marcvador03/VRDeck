@@ -7,11 +7,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"streamdeckVR/internal/connection"
 	"streamdeckVR/internal/logger"
-	p "streamdeckVR/internal/profiles"
-
-	c "streamdeckVR/internal/connection"
-	p "streamdeckVR/internal/profiles"
+	"streamdeckVR/internal/profiles"
 
 	"go.uber.org/zap/zapcore"
 
@@ -46,14 +44,14 @@ func main() {
 	logger.InitLogger("app.log", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
-	ProfileList, err := p.NewProfileList(path)
+	ProfileList, err := profiles.NewProfileList(path)
 	if err != nil {
 		log.Error("Stopping, error encountered")
 		os.Exit(1)
 	}
 	inspect_data(*ProfileList)
 
-	c.InitiateStreamDeckConnection(log)
+	connection.InitiateStreamDeckConnection(log)
 
 	//wails default code
 	// Create an instance of the app structure
