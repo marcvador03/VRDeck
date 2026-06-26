@@ -28,7 +28,7 @@ func getConnectionParams() (params, error) {
 	flag.Parse()
 
 	if p.port == 0 || p.pluginUUID == "" || p.registerEvent == "" {
-		return params{}, fmt.Errorf("Invalid command line arguments passed")
+		return p, fmt.Errorf("Invalid command line arguments passed")
 	}
 	return p, nil
 }
@@ -36,7 +36,8 @@ func getConnectionParams() (params, error) {
 func connecttoStreamDeck(p params) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	addr := "ws//localhost:" + strconv.Itoa(p.port)
+	addr := "ws://localhost:" + strconv.Itoa(p.port)
+	fmt.Printf(addr)
 	c, _, err := websocket.Dial(ctx, addr, nil)
 	if err != nil {
 		return fmt.Errorf("Connection Error: %w", err)
@@ -51,7 +52,7 @@ func InitiateStreamDeckConnection(log *l.Logger) error {
 	p, err := getConnectionParams()
 	if err != nil {
 		log.Error(err)
-		return err
+		//return err
 	}
 	if err := connecttoStreamDeck(p); err != nil {
 		log.Error(err)
