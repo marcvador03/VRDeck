@@ -44,7 +44,7 @@ func main() {
 	}
 	inspect_data(*ProfileList)
 
-	connection.InitiateStreamDeckConnection(log)
+	connection.InitiateStreamDeckConnection()
 
 	//wails default code
 	// Create an instance of the app structure
