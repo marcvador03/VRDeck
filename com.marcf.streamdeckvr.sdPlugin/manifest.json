@@ -1,22 +1,17 @@
 {
-  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-  "Name": "StreamDeck MSFS VR Plugin",
-	"Version": "0.1.0.0",
-  "Description": "A Go plugin for Stream Deck to be used in MSFS in VR",
-  "Author": "Marc Fleury",
-  "UUID": "com.marcf.streamdeckvr",
-  "Category": "MSFS",
+	"Name": "StreamDeck MSFS VR Plugin",
+	"Version": "0.0.1.0",
+	"Author": "Marc Fleury",
+	"Category": "MSFS",
 	"CategoryIcon": "imgs/plugin/category-icon",
 	"CodePath": "bin/streamdeckVR.exe",
+	"Description": "A Go plugin for Stream Deck to be used in MSFS in VR",
 	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 3,
 	"Software": {
 		"MinimumVersion": "7.1"
 	},
 	"OS": [
-		{
-			"Platform": "mac",
-			"MinimumVersion": "12"
-		},
 		{
 			"Platform": "windows",
 			"MinimumVersion": "10"
@@ -24,5 +19,6 @@
 	],
 	"Nodejs": {
 		"Version": "24"
-	}
+	},
+	"UUID": "com.marc-fleury.streamdeckvr"
 }
