@@ -6,8 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	l "streamdeckVR/internal/logger"
+	"streamdeckVR/internal/logger"
 	p "streamdeckVR/internal/profiles"
+
+	"go.uber.org/zap/zapcore"
 )
 
 //go:embed all:frontend/dist
@@ -31,15 +33,13 @@ func inspect_data(profileList p.ProfileList) {
 
 func main() {
 	path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "bProfilesV3")
-	log, err := l.NewLogger("log.txt")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "[Logger Error] %v\n", err)
-		os.Exit(1)
-	}
+	logger.InitLogger("app.log", zapcore.DebugLevel)
+	log := logger.GetDefaultLogger()
 	defer log.Sync()
 	ProfileList, err := p.NewProfileList(path, log)
 	if err != nil {
-		log.Error(err)
+		log.Error("Stopping, error encountered")
+		os.Exit(1)
 	}
 	inspect_data(*ProfileList)
 
