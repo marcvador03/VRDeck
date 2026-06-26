@@ -6,8 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"streamdeckVR/internal/connection"
 	"streamdeckVR/internal/logger"
-	p "streamdeckVR/internal/profiles"
+	"streamdeckVR/internal/profiles"
 
 	"go.uber.org/zap/zapcore"
 )
@@ -15,7 +16,7 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-func inspect_data(profileList p.ProfileList) {
+func inspect_data(profileList profiles.ProfileList) {
 
 	for i, profile := range profileList.Profiles {
 		fmt.Printf("Profile %d: %s (UUID: %s)\n", i, profile.Name, profile.UUID)
@@ -36,13 +37,16 @@ func main() {
 	logger.InitLogger("app.log", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
-	ProfileList, err := p.NewProfileList(path)
+	ProfileList, err := profiles.NewProfileList(path)
 	if err != nil {
 		log.Error("Stopping, error encountered")
 		os.Exit(1)
 	}
 	inspect_data(*ProfileList)
 
+	connection.InitiateStreamDeckConnection()
+
+	//wails default code
 	// Create an instance of the app structure
 	// app := NewApp()
 
