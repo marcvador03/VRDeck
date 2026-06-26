@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	l "streamdeckVR/internal/logger"
+	"streamdeckVR/internal/logger"
 	"strings"
 	"unicode"
+
+	"go.uber.org/zap"
 )
 
 type Buttons struct {
@@ -92,7 +94,8 @@ func addDetailPage(page *Pages, data []byte) error {
 	return nil
 }
 
-func NewPage(UUID string, path string, log *l.Logger) (Pages, error) {
+func NewPage(UUID string, path string) (Pages, error) {
+	log := logger.GetDefaultLogger()
 	page := Pages{
 		UUID: UUID,
 	}
@@ -107,11 +110,15 @@ func NewPage(UUID string, path string, log *l.Logger) (Pages, error) {
 			//fmt.Printf(manifestPath)
 			data, err := os.ReadFile(manifestPath)
 			if err != nil {
-				log.Error(err)
+				log.Error("Error while reading manifest file",
+					zap.String("path", pagePath),
+					zap.Error(err))
 				continue
 			}
 			if err := addDetailPage(&page, data); err != nil {
-				log.Error(fmt.Errorf("failed to add details for page %s: %w", dir.Name(), err))
+				log.Error("failed to add details",
+					zap.String("page", dir.Name()),
+					zap.Error(err))
 			}
 		}
 	}

@@ -4,42 +4,50 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-type Logger struct {
-	file *os.File
-	mu   sync.Mutex
+var (
+	defaultLogger *zap.Logger
+	once          sync.Once
+	filePath      string
+	logLevel      zapcore.Level = zap.InfoLevel
+)
+
+func InitLogger(path string, level zapcore.Level) {
+	filePath = path
+	logLevel = level
 }
 
-var logfile string = "streamdeckVR.log"
+func GetDefaultLogger() *zap.Logger {
+	once.Do(func() {
+		// Open the log file
+		file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			panic(fmt.Errorf("failed to open log file %s: %w", filePath, err))
+		}
 
-func NewLogger(filepath string) (*Logger, error) {
+		// Configure the encoder (JSON)
+		config := zapcore.EncoderConfig{
+			TimeKey:        "ts",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			MessageKey:     "msg",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.LowercaseLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.StringDurationEncoder,
+		}
 
-	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open log file %s: %w", filepath, err)
-	}
+		core := zapcore.NewCore(
+			zapcore.NewJSONEncoder(config),
+			zapcore.AddSync(file),
+			logLevel, // Use the configured log level
+		)
 
-	return &Logger{file: file}, nil
-}
-
-func (l *Logger) Log(message string) error {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	timestamp := time.Now().Format(time.RFC3339)
-	_, err := fmt.Fprintf(l.file, "%s %s\n", timestamp, message)
-	return err
-}
-
-func (l *Logger) Info(message string) error {
-	return l.Log(fmt.Sprintf("INFO: %s", message))
-}
-
-func (l *Logger) Error(err error) error {
-	return l.Log(fmt.Sprintf("ERROR: %v", err))
-}
-
-func (l *Logger) Close() error {
-	return l.file.Close()
+		defaultLogger = zap.New(core, zap.AddCaller())
+	})
+	return defaultLogger
 }

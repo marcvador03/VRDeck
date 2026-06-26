@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	l "streamdeckVR/internal/logger"
+	"streamdeckVR/internal/logger"
+
+	"go.uber.org/zap"
 )
 
 type Profile struct {
@@ -20,7 +22,7 @@ type ProfileList struct {
 	Profiles []Profile
 }
 
-func newProfile(UUID string, path string, data []byte, log *l.Logger) (Profile, error) {
+func newProfile(UUID string, path string, data []byte) (Profile, error) {
 	var profile Profile
 	var rawData struct {
 		Name  string `json:"Name"`
@@ -35,7 +37,7 @@ func newProfile(UUID string, path string, data []byte, log *l.Logger) (Profile, 
 	profile.Name = rawData.Name
 	profile.pagesNum = len(rawData.Pages.Pages)
 	for _, puuid := range rawData.Pages.Pages {
-		page, err := NewPage(puuid, filepath.Join(path, UUID), log)
+		page, err := NewPage(puuid, filepath.Join(path, UUID))
 		if err != nil {
 			continue
 		}
@@ -44,7 +46,8 @@ func newProfile(UUID string, path string, data []byte, log *l.Logger) (Profile, 
 	return profile, nil
 }
 
-func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
+func NewProfileList(path string) (*ProfileList, error) {
+	log := logger.GetDefaultLogger()
 	ProfileList := ProfileList{
 		path: path,
 	}
@@ -58,11 +61,15 @@ func NewProfileList(path string, log *l.Logger) (*ProfileList, error) {
 			manifestPath := path + "\\" + dir.Name() + "\\" + "manifest.json"
 			data, err := os.ReadFile(manifestPath)
 			if err != nil {
-				log.Error(err)
+				log.Error("Error while reading manifest file",
+					zap.String("UUID", dir.Name()),
+					zap.Error(err))
 				continue
 			}
-			if p, err := newProfile(dir.Name(), path, data, log); err != nil {
-				log.Error(err)
+			if p, err := newProfile(dir.Name(), path, data); err != nil {
+				log.Error("Error while process profile file",
+					zap.String("UUID", dir.Name()),
+					zap.Error(err))
 			} else {
 				ProfileList.Profiles = append(ProfileList.Profiles, p)
 			}
