@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -12,14 +11,12 @@ import (
 	"streamdeckVR/internal/profiles"
 
 	"go.uber.org/zap/zapcore"
-
-	"github.com/gorilla/websocket"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
 
-func inspect_data(profileList p.ProfileList) {
+func inspect_data(profileList profiles.ProfileList) {
 
 	for i, profile := range profileList.Profiles {
 		fmt.Printf("Profile %d: %s (UUID: %s)\n", i, profile.Name, profile.UUID)
@@ -33,10 +30,6 @@ func inspect_data(profileList p.ProfileList) {
 			}
 		}
 	}
-}
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
 func main() {

@@ -9,7 +9,4 @@ require (
 	go.uber.org/zap v1.28.0
 )
 
-require (
-	github.com/coder/websocket v1.8.15
-	github.com/gorilla/websocket v1.5.3
-)
+require github.com/coder/websocket v1.8.15
