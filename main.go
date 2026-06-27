@@ -43,9 +43,7 @@ func main() {
 		os.Exit(1)
 	}
 	inspect_data(*ProfileList)
-	scanner.StartProfilesScan()
-
-	//connection.InitiateStreamDeckConnection()
+	scanner.StartProfilesScan(path)
 
 	//wails default code
 	// Create an instance of the app structure
