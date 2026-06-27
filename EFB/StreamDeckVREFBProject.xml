@@ -2,8 +2,8 @@
 <Project Version="2" Name="EFB StreamDeckVR" FolderName="Packages" MetadataFolderName="PackagesMetadata">
 	<OutputDirectory>.</OutputDirectory>
 	<TemporaryOutputDirectory>_PackageInt</TemporaryOutputDirectory>
-	<Packages/>
-		<Package>PackageDefinitions\pandalab-efb-streamdeckvr.xml</Package>
+	<Packages>
+		<Package>PackageDefinitions\pandalabs-efb-streamdeckvr.xml</Package>
 	</Packages>
 	<PublishingGroups/>
 </Project>
