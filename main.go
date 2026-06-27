@@ -33,7 +33,7 @@ func inspect_data(profileList profiles.ProfileList) {
 }
 
 func main() {
-	path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "bProfilesV3")
+	path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "ProfilesV3")
 	logger.InitLogger("log.txt", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
