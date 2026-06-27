@@ -30,3 +30,5 @@ node_modules
 frontend/dist
 log.txt
 *.log
+
+dist/
