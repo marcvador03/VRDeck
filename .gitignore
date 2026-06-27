@@ -32,3 +32,4 @@ log.txt
 *.log
 
 dist/
+_PackageInt/
