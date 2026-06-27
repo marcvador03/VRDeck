@@ -6,9 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"streamdeckVR/internal/connection"
 	"streamdeckVR/internal/logger"
 	"streamdeckVR/internal/profiles"
+	"streamdeckVR/internal/scanner"
 
 	"go.uber.org/zap/zapcore"
 )
@@ -33,8 +33,8 @@ func inspect_data(profileList profiles.ProfileList) {
 }
 
 func main() {
-	path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "bProfilesV3")
-	logger.InitLogger("app.log", zapcore.DebugLevel)
+	path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "ProfilesV3")
+	logger.InitLogger("log.txt", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
 	ProfileList, err := profiles.NewProfileList(path)
@@ -43,8 +43,7 @@ func main() {
 		os.Exit(1)
 	}
 	inspect_data(*ProfileList)
-
-	connection.InitiateStreamDeckConnection()
+	scanner.StartProfilesScan(path)
 
 	//wails default code
 	// Create an instance of the app structure
