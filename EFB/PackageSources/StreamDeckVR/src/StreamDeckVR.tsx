@@ -98,7 +98,7 @@ class StreamDeckVRApp extends App {
    * @param _props props used when app has been setted up.
    * @returns Promise<void>
    */
-  public async install(_props: AppInstallProps): Promise<void> {
+  public async install(_props: AppInstallProps): Promise<void> { 
     Efb.loadCss(`${BASE_URL}/StreamDeckVR.css`);
     return Promise.resolve();
   }

@@ -1,0 +1,17 @@
+.ui-view.page {
+    .debug-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+      color: white !important;
+      font-size: 24px !important;
+      border: 2px solid red !important; /* Force a visible border */
+
+      .debug-text {
+        border: 2px solid white !important;
+        padding: 10px;
+      }
+    }
+  }

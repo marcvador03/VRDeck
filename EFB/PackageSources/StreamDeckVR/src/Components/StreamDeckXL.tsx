@@ -1,4 +1,4 @@
-import {TTButton, GamepadUiView, RequiredProps, TVNode, UiViewProps } from "@efb/efb-api";
+import { GamepadUiView, RequiredProps, TVNode, UiViewProps } from "@efb/efb-api";
 import { FSComponent } from "@microsoft/msfs-sdk";
 import "./StreamDeckXL.scss";
 
@@ -11,12 +11,10 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
   public readonly tabName = StreamDeckXL.name;
 
   public render(): TVNode<HTMLDivElement> {
-    return (
-      <div ref={this.gamepadUiViewRef}>
-        <div className="streamdeck-box">
-          This is a simple box.
-        </div>
+    return ( 
+    <div ref={this.gamepadUiViewRef} class="debug-container">
+        <div class="debug-text">DEBUG: If you see this, SCSS is working.</div>
       </div>
     );
   }
-} 
+}

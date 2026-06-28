@@ -25,8 +25,8 @@
 			<Flags>
 				<FSXCompatibility>false</FSXCompatibility>
 			</Flags>
-			<AssetDir>PackageSources\StreamDeckVREFB\dist\</AssetDir>
-			<OutputDir>.\html_ui\efb_ui\efb_apps\StreamDeckVREFB\</OutputDir>
+			<AssetDir>PackageSources\StreamDeckVR\dist\</AssetDir>
+			<OutputDir>.\html_ui\efb_ui\efb_apps\StreamDeckVR\</OutputDir>
 		</AssetGroup>
 	</AssetGroups>
 </AssetPackage>
