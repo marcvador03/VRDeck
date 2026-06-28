@@ -52,14 +52,14 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   }
 }
 
-class StreamDeckVRApp extends App {
+class StreamDeckVR extends App {
   /**
    * Required getter for friendly app-name.
    * Used by the EFB as App's name shown to the user.
    * @returns string
    */
   public get name(): string {
-    return StreamDeckVRApp.name;
+    return StreamDeckVR.name;
   }
 
   /**
@@ -125,4 +125,4 @@ class StreamDeckVRApp extends App {
 /**
  * App definition to be injected into EFB
  */
-Efb.use(StreamDeckVRApp);
+Efb.use(StreamDeckVR);
