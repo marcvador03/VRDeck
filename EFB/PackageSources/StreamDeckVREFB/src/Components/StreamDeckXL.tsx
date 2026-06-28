@@ -4,6 +4,7 @@ import "./StreamDeckXL.scss";
 
 interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService"> {
   title?: string;
+  color?: string;
 }
 
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
@@ -11,19 +12,11 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
 
   public render(): TVNode<HTMLDivElement> {
     return (
-      <div ref={this.gamepadUiViewRef} className="streamdeck-container">
-         <div class="header">
-          <TTButton
-            key="Go back"
-            type="secondary"
-            callback={(): void => {
-              this.props.appViewService.goBack();
-            }}
-          />
-          <h2>{this.props.title}</h2>
+      <div ref={this.gamepadUiViewRef}>
+        <div className="streamdeck-box">
+          This is a simple box.
         </div>
-        
       </div>
     );
   }
-}
+} 

@@ -35,7 +35,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
    */
   protected registerViews(): void {
     this.appViewService.registerPage("StreamDeckXL", () => (
-      <StreamDeckXL appViewService={this.appViewService} title="My StreamDeck" />
+      <StreamDeckXL appViewService={this.appViewService} title="My StreamDeck Application" />
   ));
   this.defaultView = "StreamDeckXL"; // Set as default
   }
