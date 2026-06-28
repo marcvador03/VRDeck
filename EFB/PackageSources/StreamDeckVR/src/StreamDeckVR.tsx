@@ -14,59 +14,47 @@ import { StreamDeckXL } from "./Components/StreamDeckXL";
 
 import "./StreamDeckVR.scss";
 
-/**
- * BASE_URL is a global var defined in build.js
- * It points to the dist folder of the app when builded.
- * Mainly used to load assets (icons, fonts, etc)
- */
 declare const BASE_URL: string;
 
 class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
- /**
-   * Optional property
-   * Default view key to show if using AppViewService
-   */
+
   protected defaultView = "StreamDeckXL";
 
-  /**
-   * Optional method
-   * Views (page or popup) to register if using AppViewService
-   * Default behavior : nothing
-   */
   protected registerViews(): void {
     this.appViewService.registerPage("StreamDeckXL", () => (
       <StreamDeckXL appViewService={this.appViewService} title="My StreamDeck Application" />
-  ));
-  this.defaultView = "StreamDeckXL"; // Set as default
+    ));
+    this.defaultView = "StreamDeckXL";
   }
 
-   /**
-   * Optional method
-   * Default behavior is rendering AppContainer which works with AppViewService
-   * We usually surround it with <div class="template-app">{super.render}</div>
-   * Can render anything (JSX, Component) so it doesn't require to use AppViewService and/or AppContainer
-   * @returns VNode
-   */
   public render(): VNode {
     return <div class="streamdeckvr-efb">{super.render()}</div>;
+  }
+
+  private socket: WebSocket | null = null;
+
+  public async onOpen(): Promise<void> {
+    this.socket = new WebSocket("ws://localhost:8080/streamdeck");
+
+    this.socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      this.bus.pub("update-labels", data);
+    };
+  }
+
+  public async onClose(): Promise<void> {
+    if (this.socket) 
+      this.socket.close();
+      this.socket = null;
   }
 }
 
 class StreamDeckVR extends App {
-  /**
-   * Required getter for friendly app-name.
-   * Used by the EFB as App's name shown to the user.
-   * @returns string
-   */
+ 
   public get name(): string {
     return StreamDeckVR.name;
   }
-
-  /**
-   * Required getter for app's icon url.
-   * Used by the EFB as App's icon shown to the user.
-   * @returns string
-   */
+ 
   public get icon(): string {
     return `${BASE_URL}/Assets/app-icon.svg`;
   }
@@ -103,26 +91,9 @@ class StreamDeckVR extends App {
     return Promise.resolve();
   }
 
-  /**
-   * Optional method
-   * Allows to specify an array of compatible ATC MODELS.
-   * Your app will be visible but greyed out if the aircraft is not compatible.
-   * if undefined or method not implemented, the app will be visible for all aircrafts.
-   * @returns string[] | undefined
-   */
-  public get compatibleAircraftModels(): string[] | undefined {
-    return undefined;
-  }
-
-  /*
-   * @returns {AppView} created above
-   */
   public render(): TVNode<StreamDeckVRAppView> {
     return <StreamDeckVRAppView bus={this.bus} />;
   }
 }
 
-/**
- * App definition to be injected into EFB
- */
 Efb.use(StreamDeckVR);
