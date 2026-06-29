@@ -2,7 +2,6 @@ package ws
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"streamdeckVR/internal/logger"
 	"sync"
@@ -20,15 +19,11 @@ func NewMSFSWebSocket() *MSFSWebSocket {
 	return &MSFSWebSocket{}
 }
 
-func (ws *MSFSWebSocket) BroadcastJSON(message any) error {
+func (ws *MSFSWebSocket) BroadcastJSON(jsonData []byte) error {
 	log := logger.GetDefaultLogger()
 	ws.clientsMu.Lock()
 	defer ws.clientsMu.Unlock()
 
-	jsonData, err := json.Marshal(message)
-	if err != nil {
-		return err
-	}
 	for _, client := range ws.clients {
 		err := client.Write(context.Background(), websocket.MessageText, jsonData)
 		if err != nil {

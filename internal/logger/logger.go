@@ -44,7 +44,7 @@ func GetDefaultLogger() *zap.Logger {
 		core := zapcore.NewCore(
 			zapcore.NewJSONEncoder(config),
 			zapcore.AddSync(file),
-			logLevel, // Use the configured log level
+			logLevel,
 		)
 
 		defaultLogger = zap.New(core, zap.AddCaller())

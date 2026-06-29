@@ -12,26 +12,12 @@ import (
 	"go.uber.org/zap"
 )
 
-type Buttons struct {
-	Row      int
-	Col      int
-	Title    string
-	ActionID string
-}
-
-type Pages struct {
-	UUID    string
-	Name    string
-	Buttons []Buttons
-}
-
 type Controller struct {
 	Buttons map[string]map[string]interface{} `json:"Actions"`
 }
 
-func convertTiletoDigits(tile string) (int, int, error) {
-	rStr, cStr, ok := strings.Cut(tile, ",")
-	fmt.Printf("r:" + rStr + "c: " + cStr)
+func (p *ProfileList) convertTiletoDigits(tile string) (int, int, error) {
+	cStr, rStr, ok := strings.Cut(tile, ",")
 	if !ok || len(rStr) != 1 || len(cStr) != 1 {
 		return -1, -1, fmt.Errorf("Error 1")
 	}
@@ -42,9 +28,9 @@ func convertTiletoDigits(tile string) (int, int, error) {
 	return r, c, nil
 }
 
-func addButton(tile string, details map[string]interface{}) (Buttons, error) {
+func (p *ProfileList) addButton(tile string, details map[string]interface{}) (Buttons, error) {
 	Button := Buttons{}
-	row, col, err := convertTiletoDigits(tile)
+	row, col, err := p.convertTiletoDigits(tile)
 	if err != nil {
 		return Buttons{}, err
 	}
@@ -72,7 +58,7 @@ func addButton(tile string, details map[string]interface{}) (Buttons, error) {
 	return Button, nil
 }
 
-func addDetailPage(page *Pages, data []byte) error {
+func (p *ProfileList) addDetailPage(page *Pages, data []byte) error {
 	var rawData struct {
 		Controllers []Controller `json:"Controllers"`
 		Name        string       `json:"Name"`
@@ -84,7 +70,7 @@ func addDetailPage(page *Pages, data []byte) error {
 	if len(rawData.Controllers) > 0 {
 		page.Name = rawData.Name
 		for tile, details := range rawData.Controllers[0].Buttons {
-			NewAction, err := addButton(tile, details)
+			NewAction, err := p.addButton(tile, details)
 			if err != nil {
 				return fmt.Errorf("Wrong format in Actions %s %w", page.UUID, err)
 			}
@@ -94,7 +80,7 @@ func addDetailPage(page *Pages, data []byte) error {
 	return nil
 }
 
-func NewPage(UUID string, path string) (Pages, error) {
+func (p *ProfileList) newPage(UUID string, path string) (Pages, error) {
 	log := logger.GetDefaultLogger()
 	page := Pages{
 		UUID: UUID,
@@ -107,7 +93,6 @@ func NewPage(UUID string, path string) (Pages, error) {
 	for _, dir := range pagedir {
 		if dir.IsDir() {
 			manifestPath := filepath.Join(pagePath, "manifest.json")
-			//fmt.Printf(manifestPath)
 			data, err := os.ReadFile(manifestPath)
 			if err != nil {
 				log.Error("Error while reading manifest file",
@@ -115,7 +100,7 @@ func NewPage(UUID string, path string) (Pages, error) {
 					zap.Error(err))
 				continue
 			}
-			if err := addDetailPage(&page, data); err != nil {
+			if err := p.addDetailPage(&page, data); err != nil {
 				log.Error("failed to add details",
 					zap.String("page", dir.Name()),
 					zap.Error(err))

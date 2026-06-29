@@ -1,21 +1,50 @@
 import { GamepadUiView, RequiredProps, TVNode, UiViewProps } from "@efb/efb-api";
-import { FSComponent } from "@microsoft/msfs-sdk";
+import { FSComponent, Subject } from "@microsoft/msfs-sdk";
 import "./StreamDeckXL.scss";
 
-interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService"> {
+interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService" | "bus"> {
   title?: string;
   color?: string;
 }
 
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
   public readonly tabName = StreamDeckXL.name;
+  private cellSubjects: Subject<string>[] = Array.from({ length: 32 }, (_, i) => 
+    Subject.create(String(i + 1))
+  );
 
-  public render(): TVNode<HTMLDivElement> {
+ public onAfterRender(node: TVNode): void {
+   console.log("[StreamDeckXL] Setting up bus sub");
+    this.props.bus.on("streamdeck-labels-updated", (json) => {
+      console.log("[StreamDeckXL] Event received!", json);
+      this.updateLabels(json);
+    });
+  }
+
+  public updateLabels(json: { buttons: { row: number; col: number; label: string }[] }): void {
+    console.log("[StreamDeckXL] Update called")
+    this.cellSubjects.forEach((sub, i) => sub.set(String(i + 1)));
+    json.buttons.forEach(button => {
+      if (button.row >= 0 && button.row < 4 && button.col >= 0 && button.col < 8) {
+        const index = button.row * 8 + button.col;
+        this.cellSubjects[index].set(button.label);
+      }
+    });
+  }
+
+ public render(): TVNode<HTMLDivElement> {
     return (
       <div ref={this.gamepadUiViewRef} class="streamdeck-container">
-        {Array.from({ length: 32 }).map((_, index) => (
-          <div key={`cell-${index}`} class="streamdeck-cell">
-            {index + 1} {/* Button label (1-32) */}
+        {Array.from({ length: 4 }).map((_, row) => (
+          <div class="streamdeck-row" key={`row-${row}`}>
+            {Array.from({ length: 8 }).map((_, col) => {
+              const index = row * 8 + col;
+              return (
+                <div key={`cell-${row}-${col}`} class="streamdeck-cell">
+                  {this.cellSubjects[index]}
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
