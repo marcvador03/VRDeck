@@ -10,17 +10,25 @@ interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService">
 
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
   public readonly tabName = StreamDeckXL.name;
-   private cellLabels: string[][] = Array.from({ length: 4 }, (_, row) =>
+  private cellLabels: string[][] = Array.from({ length: 4 }, (_, row) =>
     Array.from({ length: 8 }, (_, col) => String(row * 8 + col + 1))
   );
+  private previousLabelsData: { buttons: { row: number; col: number; label: string }[] } | null = null;
 
-   public onAfterRender(node: TVNode): void {
-    if (this.props.labelsData) {
+  public onUpdate(): void {
+    if (!this.props.labelsData) return;
+
+    const isDifferent = !this.previousLabelsData ||
+      JSON.stringify(this.previousLabelsData) !== JSON.stringify(this.props.labelsData);
+
+    if (isDifferent) {
       this.updateLabels(this.props.labelsData);
+      this.previousLabelsData = this.props.labelsData;
     }
   }
 
   public updateLabels(json: { buttons: { row: number; col: number; label: string }[] }): void {
+    console.log("Update triggered", this.props.labelsData)
     this.cellLabels = Array.from({ length: 4 }, (_, row) =>
       Array.from({ length: 8 }, (_, col) => String(row * 8 + col + 1))
     );

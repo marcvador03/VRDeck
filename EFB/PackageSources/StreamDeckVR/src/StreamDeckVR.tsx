@@ -17,13 +17,12 @@ import "./StreamDeckVR.scss";
 declare const BASE_URL: string;
 
 class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
-
   private labelsData: { buttons: { row: number; col: number; label: string }[] } = { buttons: [] };
   protected defaultView = "StreamDeckXL";
 
   protected registerViews(): void {
     this.appViewService.registerPage("StreamDeckXL", () => (
-      <StreamDeckXL appViewService={this.appViewService} title="StreamDeck VR" labelsData={this.labelsData} />
+      <StreamDeckXL appViewService={this.appViewService} title="StreamDeck VR"  labelsData={this.labelsData}/>
     ));
     this.defaultView = "StreamDeckXL";
   }
@@ -38,12 +37,16 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
     this.socket = new WebSocket("ws://localhost:8080/streamdeckvr");
     console.log("connected")
     this.socket.onmessage = (event) => {
-    this.labelsData = JSON.parse(event.data);
-    this.appViewService.registerPage("StreamDeckXL", () => (
-      <StreamDeckXL appViewService={this.appViewService} title="StreamDeck VR" labelsData={this.labelsData} />
-      ));
-    };
-  }
+      try {
+        const json = JSON.parse(event.data);
+        console.log("Received JSON:", json);
+        this.labelsData = json;
+        this.appViewService.update
+      } catch (err) {
+        console.error("Failed to parse JSON:", err);
+      }
+    }
+  };
 
   public async onClose(): Promise<void> {
     if (this.socket) {
@@ -52,6 +55,14 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
       console.log("disconnected")
     }
   }
+
+  //   public async onPause(): Promise<void> {
+  //   if (this.socket) {
+  //     this.socket.close();
+  //     this.socket = null;
+  //     console.log("disconnected")
+  //   }
+  // }
 }
 
 class StreamDeckVR extends App {
