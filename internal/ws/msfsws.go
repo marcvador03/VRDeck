@@ -57,7 +57,9 @@ func (ws *MSFSWebSocket) CreateWebSocket() {
 	log := logger.GetDefaultLogger()
 
 	http.HandleFunc("/streamdeckvr", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := websocket.Accept(w, r, nil)
+		conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
+			OriginPatterns: []string{"html_ui"},
+		})
 		if err != nil {
 			log.Error(("Error while accepting websocket connections"),
 				zap.Error(err))
