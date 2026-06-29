@@ -40,6 +40,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
         const json = JSON.parse(event.data);
         console.log("Received JSON:", json);
         this.bus.pub("streamdeck-labels-updated", json);
+        this.appViewService.update
       } catch (err) {
         console.error("Failed to parse JSON:", err);
       }
