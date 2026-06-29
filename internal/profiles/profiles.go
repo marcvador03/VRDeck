@@ -2,7 +2,6 @@ package profiles
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"streamdeckVR/internal/logger"
@@ -10,19 +9,37 @@ import (
 	"go.uber.org/zap"
 )
 
-type Profile struct {
-	UUID     string
-	Name     string
-	pagesNum int
-	Pages    []*Pages
+func NewProfileList(path string) *ProfileList {
+	return &ProfileList{
+		path: path,
+	}
 }
 
-type ProfileList struct {
-	path     string
-	Profiles []Profile
+func (p *ProfileList) InspectData() {
+	log := logger.GetDefaultLogger()
+	for i, profile := range p.Profiles {
+		log.Info(("Profile"),
+			zap.Int("Index", i),
+			zap.String("Profile Name", profile.Name),
+			zap.String("Profile UUID", profile.UUID))
+		for j, page := range profile.Pages {
+			log.Info(("Page"),
+				zap.Int("Index", j),
+				zap.String("Page Name", page.Name),
+				zap.String("Page UUID", page.UUID))
+			for k, button := range page.Buttons {
+				log.Info(("Buttons"),
+					zap.Int("Index", k),
+					zap.Int("Row", button.Row),
+					zap.Int("Col", button.Col),
+					zap.String("Title", button.Title),
+					zap.String("ActionID", button.ActionID))
+			}
+		}
+	}
 }
 
-func newProfile(UUID string, path string, data []byte) (Profile, error) {
+func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 	var profile Profile
 	var rawData struct {
 		Name  string `json:"Name"`
@@ -37,7 +54,7 @@ func newProfile(UUID string, path string, data []byte) (Profile, error) {
 	profile.Name = rawData.Name
 	profile.pagesNum = len(rawData.Pages.Pages)
 	for _, puuid := range rawData.Pages.Pages {
-		page, err := NewPage(puuid, filepath.Join(path, UUID))
+		page, err := p.newPage(puuid, filepath.Join(p.path, UUID))
 		if err != nil {
 			continue
 		}
@@ -46,19 +63,19 @@ func newProfile(UUID string, path string, data []byte) (Profile, error) {
 	return profile, nil
 }
 
-func NewProfileList(path string) (*ProfileList, error) {
+func (p *ProfileList) CreateProfileList() error {
 	log := logger.GetDefaultLogger()
-	ProfileList := ProfileList{
-		path: path,
-	}
-	profilev3, err := os.ReadDir(path)
+	profiledir, err := os.ReadDir(p.path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read path %s: %w", path, err)
+		log.Error(("failed to read path"),
+			zap.String("path", p.path),
+			zap.Error(err))
+		return err
 	}
 
-	for _, dir := range profilev3 {
+	for _, dir := range profiledir {
 		if dir.IsDir() {
-			manifestPath := path + "\\" + dir.Name() + "\\" + "manifest.json"
+			manifestPath := p.path + "\\" + dir.Name() + "\\" + "manifest.json"
 			data, err := os.ReadFile(manifestPath)
 			if err != nil {
 				log.Error("Error while reading manifest file",
@@ -66,14 +83,14 @@ func NewProfileList(path string) (*ProfileList, error) {
 					zap.Error(err))
 				continue
 			}
-			if p, err := newProfile(dir.Name(), path, data); err != nil {
+			if profile, err := p.newProfile(dir.Name(), data); err != nil {
 				log.Error("Error while process profile file",
 					zap.String("UUID", dir.Name()),
 					zap.Error(err))
 			} else {
-				ProfileList.Profiles = append(ProfileList.Profiles, p)
+				p.Profiles = append(p.Profiles, profile)
 			}
 		}
 	}
-	return &ProfileList, nil
+	return nil
 }
