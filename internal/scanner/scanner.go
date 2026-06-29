@@ -2,7 +2,6 @@ package scanner
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"streamdeckVR/internal/logger"
@@ -63,13 +62,16 @@ func StartProfilesScan(path string) {
 					if err != nil {
 						continue
 					}
-					fmt.Printf("profile: %s  page: %s\n", profile, page)
+					log.Info(("New Profile & Page opened"),
+						zap.String("profile", profile),
+						zap.String("page", page))
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
 				}
-				fmt.Println("error:", err)
+				log.Error(("Error while watching folder"),
+					zap.Error(err))
 			}
 		}
 	}()
