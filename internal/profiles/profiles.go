@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"streamdeckVR/internal/logger"
 	"streamdeckVR/internal/ws"
+	"strings"
 
 	"go.uber.org/zap"
 )
@@ -20,9 +21,9 @@ func NewProfileList(path string, ws *ws.MSFSWebSocket) *ProfileList {
 func (p *ProfileList) getPageByUUID(profileUUID, pageUUID string) *Pages {
 	log := logger.GetDefaultLogger()
 	for _, profile := range p.Profiles {
-		if profile.UUID == profileUUID {
+		if strings.TrimSuffix(profile.UUID, ".sdProfile") == profileUUID {
 			for _, page := range profile.Pages {
-				if page.UUID == pageUUID {
+				if strings.TrimSuffix(page.UUID, ".sdProfile") == pageUUID {
 					return page
 				}
 			}
