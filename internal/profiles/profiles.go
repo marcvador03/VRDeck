@@ -15,6 +15,26 @@ func NewProfileList(path string) *ProfileList {
 	}
 }
 
+func (p *ProfileList) GetPageByUUID(profileUUID, pageUUID string) *Pages {
+	log := logger.GetDefaultLogger()
+	for _, profile := range p.Profiles {
+		if profile.UUID == profileUUID {
+			for _, page := range profile.Pages {
+				if page.UUID == pageUUID {
+					return page
+				}
+			}
+			log.Error(("Page not found in Profile"),
+				zap.String("profile", profile.Name),
+				zap.String("page", pageUUID))
+			return nil
+		}
+	}
+	log.Error(("Profile not found"),
+		zap.String("profile", profileUUID))
+	return nil
+}
+
 func (p *ProfileList) InspectData() {
 	log := logger.GetDefaultLogger()
 	for i, profile := range p.Profiles {
