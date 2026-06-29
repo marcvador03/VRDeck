@@ -56,7 +56,7 @@ func (ws *MSFSWebSocket) removeClient(client *websocket.Conn) {
 func (ws *MSFSWebSocket) CreateWebSocket() {
 	log := logger.GetDefaultLogger()
 
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/streamdeckvr", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := websocket.Accept(w, r, nil)
 		if err != nil {
 			log.Error(("Error while accepting websocket connections"),
@@ -75,7 +75,7 @@ func (ws *MSFSWebSocket) CreateWebSocket() {
 	})
 
 	go func() {
-		log.Info("WebSocket server running on ws://localhost:8080/ws")
+		log.Info("WebSocket server running on ws://localhost:8080/streamdeckvr")
 		if err := http.ListenAndServe(":8080", nil); err != nil {
 			log.Error(("Server error:"),
 				zap.Error(err))
