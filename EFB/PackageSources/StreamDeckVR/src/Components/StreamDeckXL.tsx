@@ -2,10 +2,9 @@ import { GamepadUiView, RequiredProps, TVNode, UiViewProps } from "@efb/efb-api"
 import { FSComponent } from "@microsoft/msfs-sdk";
 import "./StreamDeckXL.scss";
 
-interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService"> {
+interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService" | "bus"> {
   title?: string;
   color?: string;
-  labelsData: { buttons: { row: number; col: number; label: string }[] };
 }
 
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
@@ -13,22 +12,17 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
   private cellLabels: string[][] = Array.from({ length: 4 }, (_, row) =>
     Array.from({ length: 8 }, (_, col) => String(row * 8 + col + 1))
   );
-  private previousLabelsData: { buttons: { row: number; col: number; label: string }[] } | null = null;
 
-  public onUpdate(): void {
-    if (!this.props.labelsData) return;
-
-    const isDifferent = !this.previousLabelsData ||
-      JSON.stringify(this.previousLabelsData) !== JSON.stringify(this.props.labelsData);
-
-    if (isDifferent) {
-      this.updateLabels(this.props.labelsData);
-      this.previousLabelsData = this.props.labelsData;
-    }
+ public onAfterRender(node: TVNode): void {
+   console.log("[StreamDeckXL] Setting up bus sub");
+    this.props.bus.on("streamdeck-labels-updated", (json) => {
+      console.log("[StreamDeckXL] Event received!", json);
+      this.updateLabels(json);
+    });
   }
 
   public updateLabels(json: { buttons: { row: number; col: number; label: string }[] }): void {
-    console.log("Update triggered", this.props.labelsData)
+    console.log("[StreamDeckXL] Update called")
     this.cellLabels = Array.from({ length: 4 }, (_, row) =>
       Array.from({ length: 8 }, (_, col) => String(row * 8 + col + 1))
     );
@@ -37,6 +31,7 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
         this.cellLabels[button.row][button.col] = button.label;
       }
     });
+    this.props.appViewService.update
   }
 
   public render(): TVNode<HTMLDivElement> {

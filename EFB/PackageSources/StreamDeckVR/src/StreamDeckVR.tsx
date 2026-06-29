@@ -17,12 +17,11 @@ import "./StreamDeckVR.scss";
 declare const BASE_URL: string;
 
 class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
-  private labelsData: { buttons: { row: number; col: number; label: string }[] } = { buttons: [] };
   protected defaultView = "StreamDeckXL";
 
   protected registerViews(): void {
     this.appViewService.registerPage("StreamDeckXL", () => (
-      <StreamDeckXL appViewService={this.appViewService} title="StreamDeck VR"  labelsData={this.labelsData}/>
+      <StreamDeckXL appViewService={this.appViewService} bus={this.bus} title="StreamDeck VR"/>
     ));
     this.defaultView = "StreamDeckXL";
   }
@@ -40,8 +39,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
       try {
         const json = JSON.parse(event.data);
         console.log("Received JSON:", json);
-        this.labelsData = json;
-        this.appViewService.update
+        this.bus.pub("streamdeck-labels-updated", json);
       } catch (err) {
         console.error("Failed to parse JSON:", err);
       }
