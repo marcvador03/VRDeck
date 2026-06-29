@@ -9,6 +9,7 @@ import (
 	"streamdeckVR/internal/logger"
 	"streamdeckVR/internal/profiles"
 	"streamdeckVR/internal/scanner"
+	"streamdeckVR/internal/ws"
 
 	"go.uber.org/zap/zapcore"
 )
@@ -43,6 +44,8 @@ func main() {
 		os.Exit(1)
 	}
 	inspect_data(*ProfileList)
+	wsServer := ws.NewMSFSWebSocket()
+	wsServer.CreateWebSocket()
 	scanner.StartProfilesScan(path)
 
 	//wails default code
