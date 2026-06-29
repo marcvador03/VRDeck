@@ -17,8 +17,7 @@ type Controller struct {
 }
 
 func (p *ProfileList) convertTiletoDigits(tile string) (int, int, error) {
-	rStr, cStr, ok := strings.Cut(tile, ",")
-	fmt.Printf("r:" + rStr + "c: " + cStr)
+	cStr, rStr, ok := strings.Cut(tile, ",")
 	if !ok || len(rStr) != 1 || len(cStr) != 1 {
 		return -1, -1, fmt.Errorf("Error 1")
 	}
