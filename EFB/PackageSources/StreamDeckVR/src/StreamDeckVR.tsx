@@ -18,11 +18,12 @@ declare const BASE_URL: string;
 
 class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
 
+  private labelsData: { buttons: { row: number; col: number; label: string }[] } = { buttons: [] };
   protected defaultView = "StreamDeckXL";
 
   protected registerViews(): void {
     this.appViewService.registerPage("StreamDeckXL", () => (
-      <StreamDeckXL appViewService={this.appViewService} title="My StreamDeck Application" />
+      <StreamDeckXL appViewService={this.appViewService} title="StreamDeck VR" labelsData={this.labelsData} />
     ));
     this.defaultView = "StreamDeckXL";
   }
@@ -36,14 +37,20 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   public async onOpen(): Promise<void> {
     this.socket = new WebSocket("ws://localhost:8080/streamdeckvr");
     console.log("connected")
- 
+    this.socket.onmessage = (event) => {
+    this.labelsData = JSON.parse(event.data);
+    this.appViewService.registerPage("StreamDeckXL", () => (
+      <StreamDeckXL appViewService={this.appViewService} title="StreamDeck VR" labelsData={this.labelsData} />
+      ));
+    };
   }
 
   public async onClose(): Promise<void> {
-    if (this.socket) 
+    if (this.socket) {
       this.socket.close();
       this.socket = null;
       console.log("disconnected")
+    }
   }
 }
 
