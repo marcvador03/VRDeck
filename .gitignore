@@ -36,4 +36,4 @@ _PackageInt/
 Packages/
 EFBTEst/
 streamdeckvr-toolbar/Community/pandalabs-efb-streamdeckvr.zip
-EFB/StreamDeckVREFBProject.xml.user
+*.xml.user
