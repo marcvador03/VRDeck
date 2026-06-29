@@ -1,5 +1,7 @@
 package profiles
 
+import "streamdeckVR/internal/ws"
+
 type Buttons struct {
 	Row      int    `json:"row"`
 	Col      int    `json:"col"`
@@ -22,5 +24,12 @@ type Profile struct {
 
 type ProfileList struct {
 	path     string
+	ws       *ws.MSFSWebSocket
 	Profiles []Profile
+}
+
+type CurrentPage struct {
+	Pages struct {
+		Current string `json:"Current"`
+	} `json:"Pages"`
 }

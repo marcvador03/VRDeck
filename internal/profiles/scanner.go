@@ -1,4 +1,4 @@
-package scanner
+package profiles
 
 import (
 	"encoding/json"
@@ -11,13 +11,24 @@ import (
 	"go.uber.org/zap"
 )
 
-type CurrentPage struct {
-	Pages struct {
-		Current string `json:"Current"`
-	} `json:"Pages"`
+func (p *ProfileList) sendPageUpdate(page *Pages) {
+	log := logger.GetDefaultLogger()
+	jsonData, err := json.Marshal(page)
+	if err != nil {
+		log.Error(("failed to marshal page to JSON"),
+			zap.Error(err))
+		return
+	}
+
+	// Broadcast the JSON to all connected clients
+	if err := p.ws.BroadcastJSON(jsonData); err != nil {
+		log.Error(("failed to broadcast JSON via WebSocket"),
+			zap.Error(err))
+		return
+	}
 }
 
-func getCurrentProfile(name string) (string, string, error) {
+func (p *ProfileList) getCurrentProfile(name string) (string, string, error) {
 	log := logger.GetDefaultLogger()
 	manifestPath := filepath.Join(name, "manifest.json")
 	profile := strings.TrimSuffix(filepath.Base(name), ".sdProfile")
@@ -41,7 +52,7 @@ func getCurrentProfile(name string) (string, string, error) {
 	return profile, page, nil
 }
 
-func StartProfilesScan(path string) {
+func (p *ProfileList) StartProfilesScan() {
 	log := logger.GetDefaultLogger()
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -58,13 +69,18 @@ func StartProfilesScan(path string) {
 					return
 				}
 				if event.Has(fsnotify.Write) {
-					profile, page, err := getCurrentProfile(event.Name)
+					profileUUID, pageUUID, err := p.getCurrentProfile(event.Name)
 					if err != nil {
 						continue
 					}
+					page := p.getPageByUUID(profileUUID, pageUUID)
+					if page == nil {
+						continue
+					}
 					log.Info(("New Profile & Page opened"),
-						zap.String("profile", profile),
-						zap.String("page", page))
+						zap.String("profile", profileUUID),
+						zap.String("page", pageUUID))
+					p.sendPageUpdate(page)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -75,7 +91,7 @@ func StartProfilesScan(path string) {
 			}
 		}
 	}()
-	err = watcher.Add(path)
+	err = watcher.Add(p.path)
 	if err != nil {
 		log.Error(("Error while adding folder for watch"),
 			zap.Error(err))

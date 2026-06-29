@@ -7,7 +7,6 @@ import (
 
 	"streamdeckVR/internal/logger"
 	"streamdeckVR/internal/profiles"
-	"streamdeckVR/internal/scanner"
 	"streamdeckVR/internal/ws"
 
 	"go.uber.org/zap/zapcore"
@@ -21,12 +20,12 @@ func main() {
 	logger.InitLogger("log.txt", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
-	profilelist := profiles.NewProfileList(path)
-	profilelist.CreateProfileList()
-	profilelist.InspectData()
 	wsServer := ws.NewMSFSWebSocket()
 	wsServer.CreateWebSocket()
-	scanner.StartProfilesScan(path)
+	profilelist := profiles.NewProfileList(path, wsServer)
+	profilelist.CreateProfileList()
+	profilelist.InspectData()
+	profilelist.StartProfilesScan()
 
 	//wails default code
 	// Create an instance of the app structure
