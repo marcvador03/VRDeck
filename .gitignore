@@ -30,3 +30,9 @@ node_modules
 frontend/dist
 log.txt
 *.log
+
+dist/
+_PackageInt/
+Packages/
+EFBTEst/
+streamdeckvr-toolbar/Community/pandalabs-efb-streamdeckvr.zip

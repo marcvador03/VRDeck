@@ -1,0 +1,34 @@
+{
+  "content": [
+    {
+      "path": "contentinfo/pandalabs-efb-streamdeckvr/thumbnail.jpg",
+      "size": 5446,
+      "date": 133603454680000000
+    },
+    {
+      "path": "html_ui/efb_ui/efb_apps/streamdeckvr/assets/app-icon.svg",
+      "size": 989,
+      "date": 134272040110000000
+    },
+    {
+      "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.css",
+      "size": 983,
+      "date": 134272040110000000
+    },
+    {
+      "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.css.map",
+      "size": 4966,
+      "date": 134272040110000000
+    },
+    {
+      "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.js",
+      "size": 154821,
+      "date": 134272040110000000
+    },
+    {
+      "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.js.map",
+      "size": 386057,
+      "date": 134272040110000000
+    }
+  ]
+}
