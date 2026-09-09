@@ -33,19 +33,38 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   private socket: WebSocket | null = null;
 
   public async onOpen(): Promise<void> {
-    this.socket = new WebSocket("ws://localhost:8081/streamdeckvr");
-    console.log("connected")
-    this.socket.onmessage = (event) => {
-      try {
-        const json = JSON.parse(event.data);
-        console.log("Received JSON:", json);
-        this.bus.pub("streamdeck-labels-updated", json);
-        this.appViewService.update
-      } catch (err) {
-        console.error("Failed to parse JSON:", err);
-      }
+    console.log("[StreamDeckVR] Attempting to connect to WebSocket at ws://localhost:8081/streamdeckvr...");
+    try {
+        this.socket = new WebSocket("ws://localhost:8081/streamdeckvr");
+        this.socket.onopen = () => {
+            console.log("[StreamDeckVR] WebSocket connection established!");
+        };
+        this.socket.onerror = (error) => {
+            console.error("[StreamDeckVR] WebSocket error:", error);
+        };
+        this.socket.onclose = (event) => {
+            console.log(
+                `[StreamDeckVR] WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason || "No reason provided"}`
+            );
+        };
+        this.socket.onmessage = (event) => {
+            console.log("[StreamDeckVR] Raw message received:", event.data);
+
+            try {
+                const json = JSON.parse(event.data);
+                console.log("[StreamDeckVR] Parsed JSON:", json);
+                this.bus.pub("streamdeck-labels-updated", json);
+                this.appViewService.update;
+            } catch (err) {
+                console.error("[StreamDeckVR] Failed to parse JSON:", err);
+                console.error("[StreamDeckVR] Raw data that failed to parse:", event.data);
+            }
+        };
+    } catch (err) {
+        console.error("[StreamDeckVR] Failed to initialize WebSocket:", err);
     }
   };
+
 
   public async onClose(): Promise<void> {
     if (this.socket) {
