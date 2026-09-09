@@ -72,8 +72,8 @@ func (ws *MSFSWebSocket) CreateWebSocket() {
 	})
 
 	go func() {
-		log.Info("WebSocket server running on ws://localhost:8080/streamdeckvr")
-		if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Info("WebSocket server running on ws://localhost:8081/streamdeckvr")
+		if err := http.ListenAndServe(":8081", nil); err != nil {
 			log.Error(("Server error:"),
 				zap.Error(err))
 		}

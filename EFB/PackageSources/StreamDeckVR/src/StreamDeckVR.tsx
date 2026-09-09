@@ -33,7 +33,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   private socket: WebSocket | null = null;
 
   public async onOpen(): Promise<void> {
-    this.socket = new WebSocket("ws://localhost:8080/streamdeckvr");
+    this.socket = new WebSocket("ws://localhost:8081/streamdeckvr");
     console.log("connected")
     this.socket.onmessage = (event) => {
       try {
