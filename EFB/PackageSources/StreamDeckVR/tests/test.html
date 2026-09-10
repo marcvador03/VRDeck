@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamDeck XL Debug</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: black;
+      font-family: Arial, sans-serif;
+    }
+
+    .sd-container {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 1em
+    
+    }
+
+     .sd-cell {
+        background-color: pink;
+    } 
+
+    /* .sd-cell:hover {
+      border-color: #888;
+    }
+
+    .sd-cell:active {
+      border-color: #fff;
+    } */
+  </style>
+</head>
+<body>
+  <div class="sd-container" id="container">
+
+  </div>
+
+  <script>
+    // Generate the 8x4 grid dynamically
+    const container = document.getElementById('container');
+
+    // Create 32 cells (8x4 grid)
+    for (let i = 1; i <= 32; i++) {
+      const cellElement = document.createElement('div');
+      cellElement.className = 'sd-cell';
+      cellElement.textContent = i; // 1-based index
+      container.appendChild(cellElement);
+    }
+
+      container.appendChild(rowElement);
+    
+  </script>
+</body>
+</html>
