@@ -23,7 +23,7 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
 
   public updateLabels(json: { buttons: { row: number; col: number; label: string }[] }): void {
     console.log("[StreamDeckXL] Update called")
-    this.cellSubjects.forEach((sub, i) => sub.set(String(i + 1)));
+    this.cellSubjects.forEach((sub, i) => sub.set(String("")));
     json.buttons.forEach(button => {
       if (button.row >= 0 && button.row < 4 && button.col >= 0 && button.col < 8) {
         const index = button.row * 8 + button.col;

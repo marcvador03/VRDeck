@@ -4,7 +4,7 @@
   "title": "EFB StreamDeckVR",
   "manufacturer": "",
   "creator": "Marc Fleury",
-  "package_version": "0.3",
+  "package_version": "0.0.0",
   "minimum_game_version": "1.8.16",
   "minimum_compatibility_version": "8.11.0.236",
   "export_type": "Community",
@@ -16,5 +16,5 @@
       "OlderHistory": ""
     }
   },
-  "total_package_size": "566367"
+  "total_package_size": "566358"
 }
