@@ -34,19 +34,16 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
 
  public render(): TVNode<HTMLDivElement> {
     return (
-      <div ref={this.gamepadUiViewRef} class="streamdeck-container">
-        {Array.from({ length: 4 }).map((_, row) => (
-          <div class="streamdeck-row" key={`row-${row}`}>
-            {Array.from({ length: 8 }).map((_, col) => {
-              const index = row * 8 + col;
-              return (
-                <div key={`cell-${row}-${col}`} class="streamdeck-cell">
-                  {this.cellSubjects[index]}
-                </div>
-              );
-            })}
-          </div>
-        ))}
+      <div ref={this.gamepadUiViewRef} class="sd-parent">
+        <div class="sd-header">VR Deck</div>
+        <div class="sd-container">
+          {Array.from({ length: 32 }).map((_, index) => (
+            <div class="sd-cell" key={`cell-${index}`}>
+              {this.cellSubjects[index]}
+            </div>
+          ))}
+        </div>
+        <div class="sd-bottom">Connected</div>
       </div>
     );
   }
