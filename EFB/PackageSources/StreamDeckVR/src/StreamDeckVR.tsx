@@ -31,6 +31,8 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
 
   private socket: WebSocket | null = null;
   private port: number = 8081;
+  private cleanClose:boolean = false;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   private handlerOpen = (): void => {  
     console.log("[StreamDeckVR] WebSocket connection established")
@@ -42,6 +44,11 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
 
   private handlerClose = (event: CloseEvent): void => {  
     console.log(`[StreamDeckVR] connection closed with code: ${event.code} and reason: ${event.reason}`)
+    this.socket = null;
+    if (this.cleanClose == false) {
+      this.reconnectTimer = setTimeout(() => this.connect(), 2000);
+    }
+      
   };
 
   private handlerMsg = (event: MessageEvent): void => {  
@@ -50,7 +57,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
         const msgJson = JSON.parse(event.data);
         console.log(`[StreamDeckVR] JSon parsed ${msgJson}`);
         this.bus.pub("streamdeck-labels-updated", msgJson);
-        this.appViewService.update;
+        this.appViewService.update(performance.now());
       } catch (err) {
         console.error("[StreamDeckVR] Failed to parse JSON:", err);
         console.error("[StreamDeckVR] Raw data that failed to parse:", event.data);
@@ -60,8 +67,22 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   public async onOpen(): Promise<void> {
     this.connect();
   }
+
+  public async onClose(): Promise<void> {
+    this.cleanClose = true;
+    if (this.reconnectTimer != null) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    };
+    this.closesocket();
+  }
   
-  public connect() {
+  public connect(): void {
+    if (this.socket != null) {
+      console.error("[StreamDeckVR] Cannot initiate WebSocket connection, existing connecting still live")
+      return;
+    }
+    this.cleanClose = false;
     console.log("[StreamDeckVR] Attempting to connect to WebSocket at ws://localhost:8081/streamdeckvr...");
     try {
       this.socket = new WebSocket(`ws://localhost:${this.port}/streamdeckvr`)
@@ -74,14 +95,12 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
     };
   };
 
-
-  public async onClose(): Promise<void> {
+  public closesocket(): void {
     if (this.socket) {
       this.socket.close();
       this.socket = null;
-      console.log("disconnected")
-    }
-  }
+    };
+  };
 
   //   public async onPause(): Promise<void> {
   //   if (this.socket) {
