@@ -18,7 +18,6 @@ declare const BASE_URL: string;
 
 class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   protected defaultView = "StreamDeckXL";
-
   protected registerViews(): void {
     this.appViewService.registerPage("StreamDeckXL", () => (
       <StreamDeckXL appViewService={this.appViewService} bus={this.bus} title="StreamDeck VR"/>
@@ -31,38 +30,48 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   }
 
   private socket: WebSocket | null = null;
+  private port: number = 8081;
+
+  private handlerOpen = (): void => {  
+    console.log("[StreamDeckVR] WebSocket connection established")
+  };
+
+  private handlerError = (event: Event): void => {  
+    console.error(`[StreamDeckVR] WebSocket error: ${event}`)
+  };
+
+  private handlerClose = (event: CloseEvent): void => {  
+    console.log(`[StreamDeckVR] connection closed with code: ${event.code} and reason: ${event.reason}`)
+  };
+
+  private handlerMsg = (event: MessageEvent): void => {  
+    console.log(`[StreamDeckVR] Raw message received: ${event.data}`);
+      try {
+        const msgJson = JSON.parse(event.data);
+        console.log(`[StreamDeckVR] JSon parsed ${msgJson}`);
+        this.bus.pub("streamdeck-labels-updated", msgJson);
+        this.appViewService.update;
+      } catch (err) {
+        console.error("[StreamDeckVR] Failed to parse JSON:", err);
+        console.error("[StreamDeckVR] Raw data that failed to parse:", event.data);
+      };
+  };
 
   public async onOpen(): Promise<void> {
+    this.connect();
+  }
+  
+  public connect() {
     console.log("[StreamDeckVR] Attempting to connect to WebSocket at ws://localhost:8081/streamdeckvr...");
     try {
-        this.socket = new WebSocket("ws://localhost:8081/streamdeckvr");
-        this.socket.onopen = () => {
-            console.log("[StreamDeckVR] WebSocket connection established!");
-        };
-        this.socket.onerror = (error) => {
-            console.error("[StreamDeckVR] WebSocket error:", error);
-        };
-        this.socket.onclose = (event) => {
-            console.log(
-                `[StreamDeckVR] WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason || "No reason provided"}`
-            );
-        };
-        this.socket.onmessage = (event) => {
-            console.log("[StreamDeckVR] Raw message received:", event.data);
-
-            try {
-                const json = JSON.parse(event.data);
-                console.log("[StreamDeckVR] Parsed JSON:", json);
-                this.bus.pub("streamdeck-labels-updated", json);
-                this.appViewService.update;
-            } catch (err) {
-                console.error("[StreamDeckVR] Failed to parse JSON:", err);
-                console.error("[StreamDeckVR] Raw data that failed to parse:", event.data);
-            }
-        };
+      this.socket = new WebSocket(`ws://localhost:${this.port}/streamdeckvr`)
+      this.socket.onopen = this.handlerOpen;
+      this.socket.onclose = this.handlerClose;
+      this.socket.onerror = this.handlerError;
+      this.socket.onmessage = this.handlerMsg;
     } catch (err) {
-        console.error("[StreamDeckVR] Failed to initialize WebSocket:", err);
-    }
+      console.error(`Error while initializing WebSocket at: ws://localhost:${this.port}/streamdeckvr with error ${err}`);
+    };
   };
 
 
