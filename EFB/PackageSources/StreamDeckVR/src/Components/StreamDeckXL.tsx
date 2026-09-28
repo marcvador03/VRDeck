@@ -15,11 +15,14 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
   );
 
  private status = Subject.create<ConnStatus>("connecting");
+ private statusClass = this.status.map((s: ConnStatus) => `sd-status sd-status-${s}`);
+ private statusText = this.status.map(s => s === "open" ? "Connected" : s === "connecting" ? "Connecting…" : "Disconnected");
 
  public onAfterRender(node: TVNode): void {
   console.log("[StreamDeckXL] Setting up bus sub");
   this.props.bus.on("streamdeck-connection-status", (state: ConnStatus) => {
     this.status.set(state);
+    console.log("[StreamDeckXL] Status received!", state);
   });
   this.props.bus.on("streamdeck-labels-updated", (json) => {
     console.log("[StreamDeckXL] Event received!", json);
@@ -41,7 +44,9 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
  public render(): TVNode<HTMLDivElement> {
     return (
       <div ref={this.gamepadUiViewRef} class="sd-parent">
-        <div class="sd-header">VR Deck</div>
+        <div class="sd-header">
+          VRDeck
+        </div>
         <div class="sd-container">
           {Array.from({ length: 32 }).map((_, index) => (
             <div class="sd-cell" key={`cell-${index}`}>
@@ -50,7 +55,9 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
           ))}
         </div>
         <div class="sd-bottom">
-          <span class={`sd-status sd-status-${this.status}`} />
+          <span class={this.statusClass}></span>
+          <span>{this.statusText}</span>
+          <span>v0.0.3</span>
         </div>
       </div>
     );
