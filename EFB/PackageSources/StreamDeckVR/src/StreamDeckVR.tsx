@@ -15,6 +15,7 @@ import { StreamDeckXL } from "./Components/StreamDeckXL";
 import "./StreamDeckVR.scss";
 
 declare const BASE_URL: string;
+type ConnStatus = "connecting" | "open" | "closed" | "closing";
 
 class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   protected defaultView = "StreamDeckXL";
@@ -36,6 +37,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
 
   private handlerOpen = (): void => {  
     console.log("[StreamDeckVR] WebSocket connection established")
+    this.publishStatus();
   };
 
   private handlerError = (event: Event): void => {  
@@ -48,7 +50,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
     if (this.cleanClose == false) {
       this.reconnectTimer = setTimeout(() => this.connect(), 2000);
     }
-      
+    this.publishStatus();
   };
 
   private handlerMsg = (event: MessageEvent): void => {  
@@ -66,10 +68,12 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
 
   public async onOpen(): Promise<void> {
     this.connect();
+    this.publishStatus();
   }
 
   public async onClose(): Promise<void> {
     this.cleanClose = true;
+    this.publishStatus();
     if (this.reconnectTimer != null) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
@@ -93,6 +97,7 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
     } catch (err) {
       console.error(`Error while initializing WebSocket at: ws://localhost:${this.port}/streamdeckvr with error ${err}`);
     };
+    this.publishStatus();
   };
 
   public closesocket(): void {
@@ -101,6 +106,29 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
       this.socket = null;
     };
   };
+
+  public publishStatus(): void {
+    const state = this.getStatus();
+    this.bus.pub("streamdeck-connection-status", this.getStatus());
+   
+
+  };
+
+  private getStatus(): ConnStatus {
+    if (this.socket == null)
+        return "closed";
+    else {
+      if (this.socket.readyState == WebSocket.OPEN)
+        return "open";
+      else if (this.socket.readyState == WebSocket.CLOSED)
+        return "closed";
+      else if (this.socket.readyState == WebSocket.CONNECTING)
+        return "connecting";
+      else if (this.socket.readyState ==  WebSocket.CLOSING)
+        return "closing";
+    }
+    return "closed";
+  }
 
   //   public async onPause(): Promise<void> {
   //   if (this.socket) {

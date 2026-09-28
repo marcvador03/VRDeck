@@ -6,6 +6,7 @@ interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService" 
   title?: string;
   color?: string;
 }
+type ConnStatus = "connecting" | "open" | "closed" | "closing";
 
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
   public readonly tabName = StreamDeckXL.name;
@@ -13,13 +14,18 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
     Subject.create(String(i + 1))
   );
 
+ private status = Subject.create<ConnStatus>("connecting");
+
  public onAfterRender(node: TVNode): void {
-   console.log("[StreamDeckXL] Setting up bus sub");
-    this.props.bus.on("streamdeck-labels-updated", (json) => {
-      console.log("[StreamDeckXL] Event received!", json);
-      this.updateLabels(json);
-    });
-  }
+  console.log("[StreamDeckXL] Setting up bus sub");
+  this.props.bus.on("streamdeck-connection-status", (state: ConnStatus) => {
+    this.status.set(state);
+  });
+  this.props.bus.on("streamdeck-labels-updated", (json) => {
+    console.log("[StreamDeckXL] Event received!", json);
+    this.updateLabels(json);
+  });
+}
 
   public updateLabels(json: { buttons: { row: number; col: number; label: string }[] }): void {
     console.log("[StreamDeckXL] Update called")
@@ -43,7 +49,9 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
             </div>
           ))}
         </div>
-        <div class="sd-bottom">Connected</div>
+        <div class="sd-bottom">
+          <span class={`sd-status sd-status-${this.status}`} />
+        </div>
       </div>
     );
   }
