@@ -6,6 +6,7 @@ interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService" 
   title?: string;
   color?: string;
 }
+type ConnStatus = "connecting" | "open" | "closed" | "closing";
 
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
   public readonly tabName = StreamDeckXL.name;
@@ -13,13 +14,21 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
     Subject.create(String(i + 1))
   );
 
+ private status = Subject.create<ConnStatus>("connecting");
+ private statusClass = this.status.map((s: ConnStatus) => `sd-status sd-status-${s}`);
+ private statusText = this.status.map(s => s === "open" ? "Connected" : s === "connecting" ? "Connecting…" : "Disconnected");
+
  public onAfterRender(node: TVNode): void {
-   console.log("[StreamDeckXL] Setting up bus sub");
-    this.props.bus.on("streamdeck-labels-updated", (json) => {
-      console.log("[StreamDeckXL] Event received!", json);
-      this.updateLabels(json);
-    });
-  }
+  console.log("[StreamDeckXL] Setting up bus sub");
+  this.props.bus.on("streamdeck-connection-status", (state: ConnStatus) => {
+    this.status.set(state);
+    console.log("[StreamDeckXL] Status received!", state);
+  });
+  this.props.bus.on("streamdeck-labels-updated", (json) => {
+    console.log("[StreamDeckXL] Event received!", json);
+    this.updateLabels(json);
+  });
+}
 
   public updateLabels(json: { buttons: { row: number; col: number; label: string }[] }): void {
     console.log("[StreamDeckXL] Update called")
@@ -35,7 +44,9 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
  public render(): TVNode<HTMLDivElement> {
     return (
       <div ref={this.gamepadUiViewRef} class="sd-parent">
-        <div class="sd-header">VR Deck</div>
+        <div class="sd-header">
+          VRDeck
+        </div>
         <div class="sd-container">
           {Array.from({ length: 32 }).map((_, index) => (
             <div class="sd-cell" key={`cell-${index}`}>
@@ -43,7 +54,11 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
             </div>
           ))}
         </div>
-        <div class="sd-bottom">Connected</div>
+        <div class="sd-bottom">
+          <span class={this.statusClass}></span>
+          <span>{this.statusText}</span>
+          <span>v0.0.3</span>
+        </div>
       </div>
     );
   }
