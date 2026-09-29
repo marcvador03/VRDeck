@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -13,16 +14,21 @@ import (
 )
 
 //go:embed all:frontend/dist
+
 var assets embed.FS
 
+var ElgatoProgramPath = filepath.Join(os.Getenv("ProgramFiles"), "Elgato", "StreamDeck", "PageIcon")
+var ElgatoProfilePath = filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "ProfilesV3")
+
 func main() {
-	path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "ProfilesV3")
+	//path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "ProfilesV3")
+	fmt.Printf(os.Getenv("ProgramFiles"))
 	logger.InitLogger("log.txt", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
 	wsServer := ws.NewMSFSWebSocket()
 	wsServer.CreateWebSocket()
-	profilelist := profiles.NewProfileList(path, wsServer)
+	profilelist := profiles.NewProfileList(ElgatoProfilePath, wsServer)
 	profilelist.CreateProfileList()
 	//profilelist.InspectData()
 	profilelist.StartProfilesScan()
