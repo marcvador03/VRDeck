@@ -17,6 +17,12 @@
   object-fit: contain; 
 }
 
+img.cell-icon[src^="data:image/svg"] {
+  width: 50%;
+  height: 50%;
+  left: 25%;
+  top: 25%;
+}
 
 .cell-label {
   position: relative;
