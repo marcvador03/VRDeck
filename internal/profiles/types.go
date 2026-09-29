@@ -8,6 +8,7 @@ type Buttons struct {
 	Title    string `json:"label"`
 	ActionID string `json:"-"`
 	Icon     string `json:"icon,omitempty"`
+	UUID     string `json:"-"`
 }
 
 type Pages struct {
@@ -34,4 +35,9 @@ type CurrentPage struct {
 	Pages struct {
 		Current string `json:"Current"`
 	} `json:"Pages"`
+}
+
+type iconEntry struct {
+	path     string
+	filename string
 }

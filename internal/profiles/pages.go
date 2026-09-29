@@ -35,6 +35,11 @@ func (p *ProfileList) addButton(tile string, details map[string]interface{}, pag
 		return Buttons{}, err
 	}
 	Button.Row, Button.Col = row, col
+	if UUID, ok := details["UUID"].(string); !ok {
+		return Buttons{}, fmt.Errorf("Issue with UUID of Action")
+	} else {
+		Button.UUID = UUID
+	}
 	if actionID, ok := details["ActionID"].(string); !ok {
 		return Buttons{}, fmt.Errorf("Issue with ActionID")
 	} else {
@@ -50,17 +55,11 @@ func (p *ProfileList) addButton(tile string, details map[string]interface{}, pag
 	}
 	title, ok := firstState["Title"].(string)
 	if !ok {
-		Button.Title = "unk"
+		Button.Title = ""
 	} else {
 		Button.Title = title
 	}
-	image, ok := firstState["Image"].(string)
-	if !ok {
-		Button.Icon = ""
-	} else {
-		Button.Icon = p.getImg(image, pagePath)
-	}
-	//	fmt.Print(Button.Icon)
+	Button.Icon = p.getImage(firstState, pagePath, Button.UUID)
 	return Button, nil
 }
 
