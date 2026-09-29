@@ -53,37 +53,6 @@
     box-sizing: border-box;
 }
 
-   .sd-cell {
-    display: flex;
-      background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.2) 0%,
-          rgba(255, 255, 255, 0.05) 100%
-        );
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      box-shadow:
-        0 4px 6px rgba(0, 0, 0, 0.1),
-        0 1px 3px rgba(0, 0, 0, 0.08),
-        inset 0 1px 1px rgba(255, 255, 255, 0.2);
-      border-radius: 10%;
-      color: white;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      text-align:center;
-      justify-content: center;
-      align-items: center;
-      line-height: 1.6;
-      margin: 0.5em
-  } 
-
-  .sd-cell:hover {
-    border-color: #888;
-  }
-  .sd-cell:active {
-    border-color: #fff;
-  }
-
   .sd-status {
   display: inline-block;
   width: 8px;
