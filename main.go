@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -22,7 +21,6 @@ var ElgatoProfilePath = filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDec
 
 func main() {
 	//path := filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "ProfilesV3")
-	fmt.Printf(os.Getenv("ProgramFiles"))
 	logger.InitLogger("log.txt", zapcore.DebugLevel)
 	log := logger.GetDefaultLogger()
 	defer log.Sync()
