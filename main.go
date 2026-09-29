@@ -24,7 +24,7 @@ func main() {
 	wsServer.CreateWebSocket()
 	profilelist := profiles.NewProfileList(path, wsServer)
 	profilelist.CreateProfileList()
-	profilelist.InspectData()
+	//profilelist.InspectData()
 	profilelist.StartProfilesScan()
 
 	//wails default code

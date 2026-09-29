@@ -11,9 +11,10 @@ type Buttons struct {
 }
 
 type Pages struct {
-	UUID    string    `json:"-"`
-	Name    string    `json:"-"`
-	Buttons []Buttons `json:"buttons"`
+	UUID     string    `json:"-"`
+	Name     string    `json:"-"`
+	Buttons  []Buttons `json:"buttons"`
+	pagePath string    `json:"-"`
 }
 
 type Profile struct {
