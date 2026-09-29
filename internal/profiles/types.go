@@ -7,6 +7,7 @@ type Buttons struct {
 	Col      int    `json:"col"`
 	Title    string `json:"label"`
 	ActionID string `json:"-"`
+	Icon     string `json:"icon,omitempty"`
 }
 
 type Pages struct {
