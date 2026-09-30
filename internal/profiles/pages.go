@@ -28,13 +28,18 @@ func (p *ProfileList) convertTiletoDigits(tile string) (int, int, error) {
 	return r, c, nil
 }
 
-func (p *ProfileList) addButton(tile string, details map[string]interface{}) (Buttons, error) {
+func (p *ProfileList) addButton(tile string, details map[string]interface{}, pagePath string) (Buttons, error) {
 	Button := Buttons{}
 	row, col, err := p.convertTiletoDigits(tile)
 	if err != nil {
 		return Buttons{}, err
 	}
 	Button.Row, Button.Col = row, col
+	if UUID, ok := details["UUID"].(string); !ok {
+		return Buttons{}, fmt.Errorf("Issue with UUID of Action")
+	} else {
+		Button.UUID = UUID
+	}
 	if actionID, ok := details["ActionID"].(string); !ok {
 		return Buttons{}, fmt.Errorf("Issue with ActionID")
 	} else {
@@ -50,11 +55,11 @@ func (p *ProfileList) addButton(tile string, details map[string]interface{}) (Bu
 	}
 	title, ok := firstState["Title"].(string)
 	if !ok {
-		Button.Title = "unk"
-		return Button, nil
-		//return Button, fmt.Errorf("Title is missing or not a string")
+		Button.Title = ""
+	} else {
+		Button.Title = title
 	}
-	Button.Title = title
+	Button.Icon, Button.IconType = p.getImage(firstState, pagePath, Button.UUID)
 	return Button, nil
 }
 
@@ -67,14 +72,15 @@ func (p *ProfileList) addDetailPage(page *Pages, data []byte) error {
 	if err := json.Unmarshal(data, &rawData); err != nil {
 		return fmt.Errorf("Error while unpacking json for Actions %w", err)
 	}
+	//Actions in Streamdecks jsons are Buttons here
 	if len(rawData.Controllers) > 0 {
 		page.Name = rawData.Name
 		for tile, details := range rawData.Controllers[0].Buttons {
-			NewAction, err := p.addButton(tile, details)
+			NewButton, err := p.addButton(tile, details, page.pagePath)
 			if err != nil {
 				return fmt.Errorf("Wrong format in Actions %s %w", page.UUID, err)
 			}
-			page.Buttons = append(page.Buttons, NewAction)
+			page.Buttons = append(page.Buttons, NewButton)
 		}
 	}
 	return nil
@@ -83,20 +89,20 @@ func (p *ProfileList) addDetailPage(page *Pages, data []byte) error {
 func (p *ProfileList) newPage(UUID string, path string) (Pages, error) {
 	log := logger.GetDefaultLogger()
 	page := Pages{
-		UUID: UUID,
+		UUID:     UUID,
+		pagePath: filepath.Join(path, "Profiles", UUID),
 	}
-	pagePath := filepath.Join(path, "Profiles", UUID)
-	pagedir, err := os.ReadDir(pagePath)
+	pagedir, err := os.ReadDir(page.pagePath)
 	if err != nil {
-		return Pages{}, fmt.Errorf("failed to read path %s: %w", pagePath, err)
+		return Pages{}, fmt.Errorf("failed to read path %s: %w", page.pagePath, err)
 	}
 	for _, dir := range pagedir {
 		if dir.IsDir() {
-			manifestPath := filepath.Join(pagePath, "manifest.json")
+			manifestPath := filepath.Join(page.pagePath, "manifest.json")
 			data, err := os.ReadFile(manifestPath)
 			if err != nil {
 				log.Error("Error while reading manifest file",
-					zap.String("path", pagePath),
+					zap.String("path", page.pagePath),
 					zap.Error(err))
 				continue
 			}

@@ -95,7 +95,6 @@ func (p *ProfileList) CreateProfileList() error {
 			zap.Error(err))
 		return err
 	}
-
 	for _, dir := range profiledir {
 		if dir.IsDir() {
 			manifestPath := p.path + "\\" + dir.Name() + "\\" + "manifest.json"

@@ -7,12 +7,16 @@ type Buttons struct {
 	Col      int    `json:"col"`
 	Title    string `json:"label"`
 	ActionID string `json:"-"`
+	Icon     string `json:"icon,omitempty"`
+	IconType string `json:"icontype,omitempty"`
+	UUID     string `json:"-"`
 }
 
 type Pages struct {
-	UUID    string    `json:"-"`
-	Name    string    `json:"-"`
-	Buttons []Buttons `json:"buttons"`
+	UUID     string    `json:"-"`
+	Name     string    `json:"-"`
+	Buttons  []Buttons `json:"buttons"`
+	pagePath string    `json:"-"`
 }
 
 type Profile struct {
@@ -32,4 +36,9 @@ type CurrentPage struct {
 	Pages struct {
 		Current string `json:"Current"`
 	} `json:"Pages"`
+}
+
+type iconEntry struct {
+	path     string
+	filename string
 }
