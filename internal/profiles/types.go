@@ -24,12 +24,15 @@ type Profile struct {
 	Name     string
 	pagesNum int
 	Pages    []*Pages
+	Default  *Pages
+	//Current  *Pages
 }
 
 type ProfileList struct {
 	path     string
 	ws       *ws.MSFSWebSocket
 	Profiles []Profile
+	Current  string
 }
 
 type CurrentPage struct {

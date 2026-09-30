@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -95,8 +96,21 @@ func (p *ProfileList) CreateProfileList() error {
 			zap.Error(err))
 		return err
 	}
+	var latest time.Time = time.Unix(0, 0)
+	p.Current = ""
 	for _, dir := range profiledir {
 		if dir.IsDir() {
+			fs, err := dir.Info()
+			if err != nil {
+				log.Error("Error while reading directory info",
+					zap.String("UUID", dir.Name()),
+					zap.Error(err))
+				continue
+			}
+			if fs.ModTime().After(latest) {
+				latest = fs.ModTime()
+				p.Current = dir.Name()
+			}
 			manifestPath := p.path + "\\" + dir.Name() + "\\" + "manifest.json"
 			data, err := os.ReadFile(manifestPath)
 			if err != nil {

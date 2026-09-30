@@ -22,7 +22,6 @@ func (p *ProfileList) sendPageUpdate(page *Pages) {
 		return
 	}
 
-	// Broadcast the JSON to all connected clients
 	if err := p.ws.BroadcastJSON(jsonData); err != nil {
 		log.Error(("failed to broadcast JSON via WebSocket"),
 			zap.Error(err))
@@ -88,18 +87,20 @@ func (p *ProfileList) StartProfilesScan() {
 					return
 				}
 				if event.Has(fsnotify.Write) {
-					profileUUID, pageUUID, err := p.getCurrentProfile(event.Name)
-					if err != nil {
-						continue
-					}
-					page := p.getPageByUUID(profileUUID, pageUUID)
-					if page == nil {
-						continue
-					}
-					log.Info(("New Profile & Page opened"),
-						zap.String("profile", profileUUID),
-						zap.String("page", pageUUID))
-					p.sendPageUpdate(page)
+					// 	profileUUID, pageUUID, err := p.getCurrentProfile(event.Name)
+					// 	if err != nil {
+					// 		continue
+					// 	}
+					// 	page := p.getPageByUUID(profileUUID, pageUUID)
+					// 	if page == nil {
+					// 		continue
+					// 	}
+					// 	log.Info(("New Profile & Page opened"),
+					// 		zap.String("profile", profileUUID),
+					// 		zap.String("page", pageUUID))
+					// 	p.sendPageUpdate(page)
+					// }
+					p.GetStartingPage(event.Name)
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
@@ -116,4 +117,25 @@ func (p *ProfileList) StartProfilesScan() {
 			zap.Error(err))
 	}
 	<-make(chan struct{})
+}
+
+func (p *ProfileList) GetStartingPage(name string) error {
+	log := logger.GetDefaultLogger()
+	profileUUID, pageUUID, err := p.getCurrentProfile(name)
+	if err != nil {
+		log.Error(("Error while opening Profile"),
+			zap.Error(err))
+		return err
+	}
+	page := p.getPageByUUID(profileUUID, pageUUID)
+	if page == nil {
+		log.Error(("Error while opening Page"),
+			zap.Error(err))
+		return err
+	}
+	log.Info(("New Profile & Page opened"),
+		zap.String("profile", profileUUID),
+		zap.String("page", pageUUID))
+	p.sendPageUpdate(page)
+	return nil
 }

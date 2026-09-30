@@ -17,7 +17,6 @@ import (
 var assets embed.FS
 var Version = "dev"
 
-var ElgatoProgramPath = filepath.Join(os.Getenv("ProgramFiles"), "Elgato", "StreamDeck", "PageIcon")
 var ElgatoProfilePath = filepath.Join(os.Getenv("APPDATA"), "Elgato", "StreamDeck", "ProfilesV3")
 
 func main() {
@@ -29,6 +28,7 @@ func main() {
 	wsServer.CreateWebSocket()
 	profilelist := profiles.NewProfileList(ElgatoProfilePath, wsServer)
 	profilelist.CreateProfileList()
+	profilelist.GetStartingPage(profilelist.Current)
 	//profilelist.InspectData()
 	profilelist.StartProfilesScan()
 
