@@ -1,6 +1,6 @@
 package profiles
 
-import "streamdeckVR/internal/ws"
+import "VRDeck/internal/ws"
 
 type Buttons struct {
 	Row      int    `json:"row"`

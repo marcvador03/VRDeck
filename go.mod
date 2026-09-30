@@ -1,4 +1,4 @@
-module streamdeckVR
+module VRDeck
 
 go 1.23.0
 

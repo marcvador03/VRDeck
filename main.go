@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"streamdeckVR/internal/logger"
-	"streamdeckVR/internal/profiles"
-	"streamdeckVR/internal/ws"
+	"VRDeck/internal/logger"
+	"VRDeck/internal/profiles"
+	"VRDeck/internal/ws"
 
 	"go.uber.org/zap/zapcore"
 )

@@ -1,11 +1,11 @@
 package profiles
 
 import (
+	"VRDeck/internal/logger"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
-	"streamdeckVR/internal/logger"
 	"strings"
 	"time"
 

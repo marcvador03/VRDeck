@@ -1,9 +1,9 @@
 package ws
 
 import (
+	"VRDeck/internal/logger"
 	"context"
 	"net/http"
-	"streamdeckVR/internal/logger"
 	"sync"
 
 	"github.com/coder/websocket"

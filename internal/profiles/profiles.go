@@ -1,11 +1,11 @@
 package profiles
 
 import (
+	"VRDeck/internal/logger"
+	"VRDeck/internal/ws"
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"streamdeckVR/internal/logger"
-	"streamdeckVR/internal/ws"
 	"strings"
 
 	"go.uber.org/zap"

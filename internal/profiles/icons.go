@@ -1,12 +1,11 @@
 package profiles
 
 import (
+	"VRDeck/internal/logger"
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
-	"streamdeckVR/internal/logger"
 	"strings"
 
 	"go.uber.org/zap"
@@ -16,8 +15,6 @@ func (p *ProfileList) getImage(firstState map[string]interface{}, pagePath strin
 	//	var button string
 	image, hasProfileImg := firstState["Image"].(string)
 	icon, hasElgatoImg := elgatoIcons[UUID]
-	fmt.Printf(UUID)
-
 	switch {
 	case hasProfileImg:
 		return p.fetchImg(image, pagePath), ""

@@ -29,7 +29,6 @@ func GetDefaultLogger() *zap.Logger {
 			panic(fmt.Errorf("failed to open log file %s: %w", filePath, err))
 		}
 
-		// Configure the encoder (JSON)
 		config := zapcore.EncoderConfig{
 			TimeKey:        "ts",
 			LevelKey:       "level",
