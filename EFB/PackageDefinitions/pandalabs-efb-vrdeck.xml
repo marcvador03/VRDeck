@@ -2,7 +2,7 @@
 <AssetPackage Version="0.4.0">
 	<ItemSettings>
 		<ContentType>MISC</ContentType>
-		<Title>EFB StreamDeckVR</Title>
+		<Title>EFB VRDeck</Title>
 		<Manufacturer/>
 		<Creator>Marc Fleury</Creator>
 	</ItemSettings>
@@ -17,16 +17,16 @@
 			<Flags>
 				<FSXCompatibility>false</FSXCompatibility>
 			</Flags>
-			<AssetDir>PackageDefinitions\pandalabs-efb-streamdeckvr\ContentInfo</AssetDir>
-			<OutputDir>ContentInfo\pandalabs-efb-streamdeckvr</OutputDir>
+			<AssetDir>PackageDefinitions\pandalabs-efb-vrdeck\ContentInfo</AssetDir>
+			<OutputDir>ContentInfo\pandalabs-efb-vrdeck</OutputDir>
 		</AssetGroup>
 		<AssetGroup Name="efb_apps_template">
 			<Type Version="0">Copy</Type>
 			<Flags>
 				<FSXCompatibility>false</FSXCompatibility>
 			</Flags>
-			<AssetDir>PackageSources\StreamDeckVR\dist\</AssetDir>
-			<OutputDir>.\html_ui\efb_ui\efb_apps\StreamDeckVR\</OutputDir>
+			<AssetDir>PackageSources\VRDeck\dist\</AssetDir>
+			<OutputDir>.\html_ui\efb_ui\efb_apps\VRDeck\</OutputDir>
 		</AssetGroup>
 	</AssetGroups>
 </AssetPackage>

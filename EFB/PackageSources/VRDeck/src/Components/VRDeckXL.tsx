@@ -1,9 +1,9 @@
 import { GamepadUiView, RequiredProps, TVNode, UiViewProps } from "@efb/efb-api";
 import { FSComponent, Subject } from "@microsoft/msfs-sdk";
 import { Cell } from "./DeckCell";
-import "./StreamDeckXL.scss";
+import "./VRDeckXL.scss";
 
-interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService" | "bus"> {
+interface VRDeckXLProps extends RequiredProps<UiViewProps, "appViewService" | "bus"> {
   title?: string;
   color?: string;
 }
@@ -12,8 +12,8 @@ type ConnStatus = "connecting" | "open" | "closed" | "closing";
 
 declare const APP_VERSION: string;
 
-export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
-  public readonly tabName = StreamDeckXL.name;
+export class VRDeckXL extends GamepadUiView<HTMLDivElement, VRDeckXLProps> {
+  public readonly tabName = VRDeckXL.name;
   private cellSubjects: Subject<string>[] = Array.from({ length: 32 }, (_, i) => 
     Subject.create(String(i + 1))
   );
@@ -25,19 +25,19 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
  private cellContent = Array.from( {length: 32}, () => FSComponent.createRef<Cell>());
 
  public onAfterRender(node: TVNode): void {
-  console.log("[StreamDeckXL] Setting up bus sub");
+  console.log("[VRDeck] Setting up bus sub");
   this.props.bus.on("streamdeck-connection-status", (state: ConnStatus) => {
     this.status.set(state);
-    console.log("[StreamDeckXL] Status received!", state);
+    console.log("[VRDeck] Status received!", state);
   });
   this.props.bus.on("streamdeck-labels-updated", (json) => {
-    console.log("[StreamDeckXL] Event received!", json);
+    console.log("[VRDeck] Event received!", json);
     this.updateLabels(json);
   });
 }
 
  public updateLabels(json: { buttons: { row: number; col: number; label: string; icon?: string, icontype?: string }[] }): void {
-    console.log("[StreamDeckXL] Update called")
+    console.log("[VRDeck] Update called")
     this.cellContent.forEach((ref) => ref.instance.update("", null, undefined));
     json.buttons.forEach(button => {
       if (button.row >= 0 && button.row < 4 && button.col >= 0 && button.col < 8) {

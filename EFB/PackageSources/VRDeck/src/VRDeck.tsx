@@ -10,20 +10,20 @@ import {
   TVNode,
 } from "@efb/efb-api";
 import { FSComponent, VNode } from "@microsoft/msfs-sdk";
-import { StreamDeckXL } from "./Components/StreamDeckXL";
+import { VRDeckXL } from "./Components/VRDeckXL";
 
-import "./StreamDeckVR.scss";
+import "./VRDeck.scss";
 
 declare const BASE_URL: string;
 type ConnStatus = "connecting" | "open" | "closed" | "closing";
 
-class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
-  protected defaultView = "StreamDeckXL";
+class VRDeckAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
+  protected defaultView = "VRDeckXL";
   protected registerViews(): void {
-    this.appViewService.registerPage("StreamDeckXL", () => (
-      <StreamDeckXL appViewService={this.appViewService} bus={this.bus} title="StreamDeck VR"/>
+    this.appViewService.registerPage("VRDeckXL", () => (
+      <VRDeckXL appViewService={this.appViewService} bus={this.bus} title="StreamDeck VR"/>
     ));
-    this.defaultView = "StreamDeckXL";
+    this.defaultView = "VRDeckXL";
   }
 
   public render(): VNode {
@@ -139,10 +139,10 @@ class StreamDeckVRAppView extends AppView<RequiredProps<AppViewProps, "bus">> {
   // }
 }
 
-class StreamDeckVR extends App {
+class VRDeck extends App {
  
   public get name(): string {
-    return StreamDeckVR.name;
+    return VRDeck.name;
   }
  
   public get icon(): string {
@@ -177,13 +177,13 @@ class StreamDeckVR extends App {
    * @returns Promise<void>
    */
   public async install(_props: AppInstallProps): Promise<void> { 
-    Efb.loadCss(`${BASE_URL}/StreamDeckVR.css`);
+    Efb.loadCss(`${BASE_URL}/VRDeck.css`);
     return Promise.resolve();
   }
 
-  public render(): TVNode<StreamDeckVRAppView> {
-    return <StreamDeckVRAppView bus={this.bus} />;
+  public render(): TVNode<VRDeckAppView> {
+    return <VRDeckAppView bus={this.bus} />;
   }
 }
 
-Efb.use(StreamDeckVR);
+Efb.use(VRDeck);

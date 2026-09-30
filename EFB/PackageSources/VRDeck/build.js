@@ -18,7 +18,7 @@ const env = {
 };
 
 const baseConfig = {
-  entryPoints: ["src/StreamDeckVR.tsx"],
+  entryPoints: ["src/VRDeck.tsx"],
   keepNames: true,
   bundle: true,
   outdir: "dist",
@@ -30,7 +30,7 @@ const baseConfig = {
   },
   target: "es2017",
   define: { 
-    BASE_URL: `"coui://html_ui/efb_ui/efb_apps/StreamDeckVR"`,
+    BASE_URL: `"coui://html_ui/efb_ui/efb_apps/VRDeck"`,
     APP_VERSION: JSON.stringify(pkg.version), },
   plugins: [
     copyStaticFiles({
@@ -74,7 +74,7 @@ const fs = require("fs");
 const path = require("path");
 const xmlPath = path.resolve(
   __dirname,
-  "../../PackageDefinitions/pandalabs-efb-streamdeckvr.xml"
+  "../../PackageDefinitions/pandalabs-efb-vrdeck.xml"
 );
 let xml = fs.readFileSync(xmlPath, "utf8");
 xml = xml.replace(/(<AssetPackage Version=")[^"]*(")/, `$1${pkg.version}$2`);
