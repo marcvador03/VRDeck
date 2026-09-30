@@ -12,10 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// check how to make this across packages or in a struct. Copied from main right now
-var ElgatoProgramPath = filepath.Join(os.Getenv("ProgramFiles"), "Elgato", "StreamDeck", "PageIcons")
-
-func (p *ProfileList) getImage(firstState map[string]interface{}, pagePath string, UUID string) string {
+func (p *ProfileList) getImage(firstState map[string]interface{}, pagePath string, UUID string) (string, string) {
 	//	var button string
 	image, hasProfileImg := firstState["Image"].(string)
 	icon, hasElgatoImg := elgatoIcons[UUID]
@@ -23,15 +20,14 @@ func (p *ProfileList) getImage(firstState map[string]interface{}, pagePath strin
 
 	switch {
 	case hasProfileImg:
-		return p.fetchImg(image, pagePath)
+		return p.fetchImg(image, pagePath), ""
 	case hasElgatoImg:
 		if icon.filename == "" {
-			return ""
+			return "", ""
 		}
-		path := filepath.Join(ElgatoProgramPath, icon.path)
-		return p.fetchImg(icon.filename, path)
+		return p.fetchImg(icon.filename, icon.path), "half"
 	default:
-		return ""
+		return "", ""
 	}
 }
 
@@ -55,124 +51,125 @@ func (p *ProfileList) fetchImg(imageUrl string, pagePath string) string {
 	return "data:" + mime + ";base64," + base64.StdEncoding.EncodeToString(img)
 }
 
+// https://github.com/czottmann/streamdeck-iconpack-fluentui-system-icons
 var elgatoIcons = map[string]iconEntry{
 	"com.elgato.streamdeck.multiactions.routine": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "stack.png",
 	},
 
 	"com.elgato.streamdeck.page.goto": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
+		path:     "./resources/icons/",
 		filename: "",
 	},
 
 	"com.elgato.streamdeck.system.website": {
-		path:     "com.elgato.streamdeck.pageicons.connectivity.sdIcons/Images/",
-		filename: "10IconGlobe.svg",
+		path:     "./resources/icons/",
+		filename: "globe.png",
 	},
 
 	"com.elgato.streamdeck.multiactions.routine2": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "stack_star.png",
 	},
 
 	"com.elgato.streamdeck.page.indicator": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
+		path:     "./resources/icons/",
 		filename: "",
 	},
 
 	"com.elgato.streamdeck.system.hotkeyswitch": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "toggle_right.png",
 	},
 
 	"com.elgato.streamdeck.multiactions.random": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "stack_arrow_forward.png",
 	},
 
 	"com.elgato.streamdeck.soundboard.playaudio": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "play_circle_full.png",
 	},
 
 	"com.elgato.streamdeck.system.hotkey": {
-		path:     "com.elgato.streamdeck.pageicons.operations.sdIcons/Images/",
-		filename: "17IconHotkey.svg",
+		path:     "./resources/icons/",
+		filename: "window_new.png",
 	},
 
 	"com.elgato.streamdeck.keys.logic": {
-		path:     "com.elgato.streamdeck.pageicons.user.sdIcons/Images/",
-		filename: "3IconTouch.svg",
+		path:     "./resources/icons/",
+		filename: "hand_draw.png",
 	},
 
 	"com.elgato.streamdeck.soundboard.stopaudioplay": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "stop.png",
 	},
 
 	"com.elgato.streamdeck.system.open": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "rocket.png",
 	},
 
 	"com.elgato.streamdeck.profile.openchild": {
-		path:     "com.elgato.streamdeck.pageicons.file.sdIcons/Images/",
-		filename: "3IconFolder.svg",
+		path:     "./resources/icons/",
+		filename: "folder.png",
 	},
 
 	"com.elgato.streamdeck.system.timer": {
-		path:     "com.elgato.streamdeck.pageicons.tools.sdIcons/Images/",
-		filename: "17IconTimer.svg",
+		path:     "./resources/icons/",
+		filename: "clock_alarm.png",
 	},
 
 	"com.elgato.streamdeck.system.openapp": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "app_folder.png",
 	},
 
 	"com.elgato.streamdeck.profile.rotate": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "production.png",
 	},
 
 	"com.elgato.streamdeck.system.keybrightness": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "weather_sunny.png",
 	},
 
 	"com.elgato.streamdeck.system.close": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "dismiss_square.png",
 	},
 
 	"com.elgato.streamdeck.page.previous": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "13IconChevronLeft.svg",
+		path:     "./resources/icons/",
+		filename: "arrow_circle_left.png",
 	},
 
 	"com.elgato.streamdeck.system.sleep": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "sleep.png",
 	},
 
 	"com.elgato.streamdeck.system.text": {
-		path:     "com.elgato.streamdeck.pageicons.textformatting.sdIcons/Images/",
-		filename: "14IconText.svg",
+		path:     "./resources/icons/",
+		filename: "scan_type.png",
 	},
 
 	"com.elgato.streamdeck.page.next": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "14IconChevronRight.svg",
+		path:     "./resources/icons/",
+		filename: "arrow_circle_right.png",
 	},
 
 	"com.elgato.streamdeck.system.vsdtoggle": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "qr_code.png",
 	},
 
 	"com.elgato.streamdeck.system.multimedia": {
-		path:     "com.elgato.streamdeck.pageicons.arrow.sdIcons/Images/",
-		filename: "",
+		path:     "./resources/icons/",
+		filename: "play_circle.png",
 	},
 }

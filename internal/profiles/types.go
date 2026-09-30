@@ -8,6 +8,7 @@ type Buttons struct {
 	Title    string `json:"label"`
 	ActionID string `json:"-"`
 	Icon     string `json:"icon,omitempty"`
+	IconType string `json:"icontype,omitempty"`
 	UUID     string `json:"-"`
 }
 

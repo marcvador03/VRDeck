@@ -59,7 +59,7 @@ func (p *ProfileList) addButton(tile string, details map[string]interface{}, pag
 	} else {
 		Button.Title = title
 	}
-	Button.Icon = p.getImage(firstState, pagePath, Button.UUID)
+	Button.Icon, Button.IconType = p.getImage(firstState, pagePath, Button.UUID)
 	return Button, nil
 }
 
