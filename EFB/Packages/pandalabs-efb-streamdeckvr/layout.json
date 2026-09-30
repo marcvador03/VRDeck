@@ -8,27 +8,27 @@
     {
       "path": "html_ui/efb_ui/efb_apps/streamdeckvr/assets/app-icon.svg",
       "size": 989,
-      "date": 134350919240000000
+      "date": 134352386750000000
     },
     {
       "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.css",
       "size": 2422,
-      "date": 134350919240000000
+      "date": 134352386750000000
     },
     {
       "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.css.map",
       "size": 11752,
-      "date": 134350919240000000
+      "date": 134352386750000000
     },
     {
       "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.js",
-      "size": 159837,
-      "date": 134350919240000000
+      "size": 159842,
+      "date": 134352386750000000
     },
     {
       "path": "html_ui/efb_ui/efb_apps/streamdeckvr/streamdeckvr.js.map",
-      "size": 393972,
-      "date": 134350919240000000
+      "size": 394029,
+      "date": 134352386750000000
     }
   ]
 }

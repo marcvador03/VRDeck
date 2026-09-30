@@ -2,7 +2,9 @@
 	<CheckedOutPackages>
 		<Package Name="pandalabs-efb-streamdeckvr"/>
 	</CheckedOutPackages>
-	<SelectedPackages/>
+	<SelectedPackages>
+		<Package Name="pandalabs-efb-streamdeckvr"/>
+	</SelectedPackages>
 	<Filter/>
 	<ShowOnlyEdited>true</ShowOnlyEdited>
 </UserSettings>
