@@ -7,6 +7,7 @@ interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService" 
   title?: string;
   color?: string;
 }
+
 type ConnStatus = "connecting" | "open" | "closed" | "closing";
 
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
@@ -33,13 +34,13 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
   });
 }
 
- public updateLabels(json: { buttons: { row: number; col: number; label: string; icon?: string }[] }): void {
+ public updateLabels(json: { buttons: { row: number; col: number; label: string; icon?: string, icontype?: string }[] }): void {
     console.log("[StreamDeckXL] Update called")
-    this.cellContent.forEach((ref) => ref.instance.update("", null));
+    this.cellContent.forEach((ref) => ref.instance.update("", null, undefined));
     json.buttons.forEach(button => {
       if (button.row >= 0 && button.row < 4 && button.col >= 0 && button.col < 8) {
         const index = button.row * 8 + button.col;
-        this.cellContent[index].instance.update(button.label, button.icon ?? null);
+        this.cellContent[index].instance.update(button.label, button.icon ?? null, button.icontype);
       }
     });
   }
@@ -52,7 +53,7 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
         </div>
         <div class="sd-container">
           {Array.from({ length: 32 }).map((_, index) => (
-            <Cell ref={this.cellContent[index]} key={`cell-${index}`} text="" url="" />
+            <Cell ref={this.cellContent[index]} key={`cell-${index}`} text="" url="" icontype=""/>
         ))}
         </div>
         <div class="sd-bottom">
