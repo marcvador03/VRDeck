@@ -8,6 +8,8 @@ interface StreamDeckXLProps extends RequiredProps<UiViewProps, "appViewService" 
 }
 type ConnStatus = "connecting" | "open" | "closed" | "closing";
 
+declare const APP_VERSION: string;
+
 export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProps> {
   public readonly tabName = StreamDeckXL.name;
   private cellSubjects: Subject<string>[] = Array.from({ length: 32 }, (_, i) => 
@@ -57,7 +59,7 @@ export class StreamDeckXL extends GamepadUiView<HTMLDivElement, StreamDeckXLProp
         <div class="sd-bottom">
           <span class={this.statusClass}></span>
           <span>{this.statusText}</span>
-          <span>v0.0.3</span>
+          <span>vv{APP_VERSION}</span>
         </div>
       </div>
     );

@@ -1,3 +1,4 @@
+const pkg = require("./package.json");
 const copyStaticFiles = require("esbuild-copy-static-files");
 const globalExternals = require("@fal-works/esbuild-plugin-global-externals");
 const { typecheckPlugin } = require("@jgoz/esbuild-plugin-typecheck");
@@ -6,6 +7,7 @@ const postcss = require("postcss");
 const postCssUrl = require("postcss-url");
 const postcssPrefixSelector = require("postcss-prefix-selector");
 const sassPlugin = require("esbuild-sass-plugin");
+
 
 require("dotenv").config({ path: __dirname + "/.env" });
 
@@ -27,7 +29,9 @@ const baseConfig = {
     ".html": "copy",
   },
   target: "es2017",
-  define: { BASE_URL: `"coui://html_ui/efb_ui/efb_apps/StreamDeckVR"` },
+  define: { 
+    BASE_URL: `"coui://html_ui/efb_ui/efb_apps/StreamDeckVR"`,
+    APP_VERSION: JSON.stringify(pkg.version), },
   plugins: [
     copyStaticFiles({
       src: "./src/Assets",
@@ -64,6 +68,19 @@ if (env.typechecking) {
     typecheckPlugin({ watch: process.env.SERVING_MODE === "WATCH" })
   );
 }
+
+//update MSFS xml version number from asset-package.xml
+const fs = require("fs");
+const path = require("path");
+const xmlPath = path.resolve(
+  __dirname,
+  "../../PackageDefinitions/pandalabs-efb-streamdeckvr.xml"
+);
+let xml = fs.readFileSync(xmlPath, "utf8");
+xml = xml.replace(/(<AssetPackage Version=")[^"]*(")/, `$1${pkg.version}$2`);
+fs.writeFileSync(xmlPath, xml);
+console.log(`asset-package.xml synced → ${pkg.version}`);
+
 
 if (process.env.SERVING_MODE === "WATCH") {
   esbuild.context(baseConfig).then((ctx) => ctx.watch());
