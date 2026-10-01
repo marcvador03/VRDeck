@@ -14,8 +14,10 @@ import (
 )
 
 func (p *ProfileList) mergeDefaut(page *Pages, defaut *Pages) Pages {
+	fmt.Println(page.Buttons[1].Title)
 	tmp := *page
-	if defaut == nil {
+	if defaut.Buttons == nil {
+		fmt.Println(tmp.Buttons[1].Title)
 		return tmp
 	}
 	tmp.Buttons = nil
@@ -108,19 +110,6 @@ func (p *ProfileList) StartProfilesScan() {
 					return
 				}
 				if event.Has(fsnotify.Write) {
-					// 	profileUUID, pageUUID, err := p.getCurrentProfile(event.Name)
-					// 	if err != nil {
-					// 		continue
-					// 	}
-					// 	page := p.getPageByUUID(profileUUID, pageUUID)
-					// 	if page == nil {
-					// 		continue
-					// 	}
-					// 	log.Info(("New Profile & Page opened"),
-					// 		zap.String("profile", profileUUID),
-					// 		zap.String("page", pageUUID))
-					// 	p.sendPageUpdate(page)
-					// }
 					p.GetStartingPage(event.Name)
 				}
 			case err, ok := <-watcher.Errors:
@@ -142,22 +131,30 @@ func (p *ProfileList) StartProfilesScan() {
 
 func (p *ProfileList) GetStartingPage(name string) error {
 	log := logger.GetDefaultLogger()
+	var page, defaut *Pages
 	profileUUID, pageUUID, err := p.getCurrentProfile(name)
 	if err != nil {
-		log.Error(("Error while opening Profile"),
-			zap.Error(err))
-		return err
+		log.Info("Error while opening Profile, defaulting to current values stored")
+		currentPage := p.getProfileByUUID(profileUUID).Current
+		page, defaut = p.getPageByUUID(profileUUID, currentPage.UUID)
+
+		log.Info(("New Profile & Page opened"),
+			zap.String("profile", profileUUID),
+			zap.String("page", currentPage.UUID))
+	} else {
+		page, defaut = p.getPageByUUID(profileUUID, pageUUID)
+		log.Info(("New Profile & Page opened"),
+			zap.String("profile", profileUUID),
+			zap.String("page", pageUUID))
 	}
-	page, defaut := p.getPageByUUID(profileUUID, pageUUID)
 	if page == nil {
 		log.Error(("Error while opening Page"),
 			zap.Error(err))
 		return err
 	}
-	log.Info(("New Profile & Page opened"),
-		zap.String("profile", profileUUID),
-		zap.String("page", pageUUID))
+	//fmt.Println(page.Buttons[0].Title)
 	pageToSend := p.mergeDefaut(page, defaut)
+	//fmt.Println(pageToSend.Buttons[0].Title)
 	p.sendPageUpdate(&pageToSend)
 	return nil
 }

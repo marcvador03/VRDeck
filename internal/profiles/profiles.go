@@ -22,9 +22,9 @@ func NewProfileList(path string, ws *ws.MSFSWebSocket) *ProfileList {
 func (p *ProfileList) getPageByUUID(profileUUID, pageUUID string) (*Pages, *Pages) {
 	log := logger.GetDefaultLogger()
 	for _, profile := range p.Profiles {
-		if strings.TrimSuffix(profile.UUID, ".sdProfile") == profileUUID {
+		if profile.UUID == profileUUID {
 			for _, page := range profile.Pages {
-				if strings.TrimSuffix(page.UUID, ".sdProfile") == pageUUID {
+				if page.UUID == pageUUID {
 					return page, profile.Default
 				}
 			}
@@ -37,6 +37,18 @@ func (p *ProfileList) getPageByUUID(profileUUID, pageUUID string) (*Pages, *Page
 	log.Error(("Profile not found"),
 		zap.String("profile", profileUUID))
 	return nil, nil
+}
+
+func (p *ProfileList) getProfileByUUID(profileUUID string) *Profile {
+	log := logger.GetDefaultLogger()
+	for _, profile := range p.Profiles {
+		if strings.TrimSuffix(profile.UUID, ".sdProfile") == profileUUID {
+			return &profile
+		}
+	}
+	log.Error(("Profile not found"),
+		zap.String("profile", profileUUID))
+	return nil
 }
 
 func (p *ProfileList) InspectData() {
@@ -69,15 +81,17 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 		Name  string `json:"Name"`
 		Pages struct {
 			Default string   `json:"Default"`
+			Current string   `json:"Current"`
 			Pages   []string `json:"Pages"`
 		} `json:"Pages"`
 	}
 	if err := json.Unmarshal(data, &rawData); err != nil {
 		return profile, err
 	}
-	profile.UUID = UUID
+	profile.UUID = strings.TrimSuffix(UUID, ".sdProfile")
 	profile.Name = rawData.Name
 	profile.Default = nil
+	profile.Current = nil
 	profile.pagesNum = len(rawData.Pages.Pages)
 	for _, puuid := range rawData.Pages.Pages {
 		page, err := p.newPage(puuid, filepath.Join(p.path, UUID))
@@ -85,6 +99,11 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 			continue
 		}
 		profile.Pages = append(profile.Pages, &page)
+		//fmt.Println(page.Buttons[0].Title)
+		if rawData.Pages.Current == puuid {
+			profile.Current = &page
+			//fmt.Println(profile.Current.Buttons[0].Title)
+		}
 	}
 	page, err := p.newPage(rawData.Pages.Default, filepath.Join(p.path, UUID))
 	if err == nil {
