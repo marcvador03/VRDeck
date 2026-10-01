@@ -99,10 +99,8 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 			continue
 		}
 		profile.Pages = append(profile.Pages, &page)
-		//fmt.Println(page.Buttons[0].Title)
 		if rawData.Pages.Current == puuid {
 			profile.Current = &page
-			//fmt.Println(profile.Current.Buttons[0].Title)
 		}
 	}
 	page, err := p.newPage(rawData.Pages.Default, filepath.Join(p.path, UUID))

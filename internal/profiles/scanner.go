@@ -14,10 +14,8 @@ import (
 )
 
 func (p *ProfileList) mergeDefaut(page *Pages, defaut *Pages) Pages {
-	fmt.Println(page.Buttons[1].Title)
 	tmp := *page
 	if defaut.Buttons == nil {
-		fmt.Println(tmp.Buttons[1].Title)
 		return tmp
 	}
 	tmp.Buttons = nil
@@ -152,9 +150,7 @@ func (p *ProfileList) GetStartingPage(name string) error {
 			zap.Error(err))
 		return err
 	}
-	//fmt.Println(page.Buttons[0].Title)
 	pageToSend := p.mergeDefaut(page, defaut)
-	//fmt.Println(pageToSend.Buttons[0].Title)
 	p.sendPageUpdate(&pageToSend)
 	return nil
 }
