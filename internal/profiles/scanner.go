@@ -13,15 +13,39 @@ import (
 	"go.uber.org/zap"
 )
 
+func (p *ProfileList) mergeDefaut(page *Pages, defaut *Pages) Pages {
+	tmp := *page
+	if defaut == nil {
+		return tmp
+	}
+	tmp.Buttons = nil
+	for _, defbutton := range defaut.Buttons {
+		tmp.Buttons = append(tmp.Buttons, defbutton)
+	}
+	for _, button := range page.Buttons {
+		for _, defbutton := range defaut.Buttons {
+			if defbutton.Col == button.Col && defbutton.Row == button.Row {
+				continue
+			} else {
+				tmp.Buttons = append(tmp.Buttons, button)
+			}
+		}
+		for _, button := range tmp.Buttons {
+			fmt.Printf("%v : %v\n", button.Col, button.Row)
+		}
+	}
+	return tmp
+}
+
 func (p *ProfileList) sendPageUpdate(page *Pages) {
 	log := logger.GetDefaultLogger()
+
 	jsonData, err := json.Marshal(page)
 	if err != nil {
 		log.Error(("failed to marshal page to JSON"),
 			zap.Error(err))
 		return
 	}
-
 	if err := p.ws.BroadcastJSON(jsonData); err != nil {
 		log.Error(("failed to broadcast JSON via WebSocket"),
 			zap.Error(err))
@@ -127,7 +151,7 @@ func (p *ProfileList) GetStartingPage(name string) error {
 			zap.Error(err))
 		return err
 	}
-	page := p.getPageByUUID(profileUUID, pageUUID)
+	page, defaut := p.getPageByUUID(profileUUID, pageUUID)
 	if page == nil {
 		log.Error(("Error while opening Page"),
 			zap.Error(err))
@@ -136,6 +160,7 @@ func (p *ProfileList) GetStartingPage(name string) error {
 	log.Info(("New Profile & Page opened"),
 		zap.String("profile", profileUUID),
 		zap.String("page", pageUUID))
-	p.sendPageUpdate(page)
+	pageToSend := p.mergeDefaut(page, defaut)
+	p.sendPageUpdate(&pageToSend)
 	return nil
 }

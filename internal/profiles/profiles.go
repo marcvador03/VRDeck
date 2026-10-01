@@ -4,6 +4,7 @@ import (
 	"VRDeck/internal/logger"
 	"VRDeck/internal/ws"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,24 +20,24 @@ func NewProfileList(path string, ws *ws.MSFSWebSocket) *ProfileList {
 	}
 }
 
-func (p *ProfileList) getPageByUUID(profileUUID, pageUUID string) *Pages {
+func (p *ProfileList) getPageByUUID(profileUUID, pageUUID string) (*Pages, *Pages) {
 	log := logger.GetDefaultLogger()
 	for _, profile := range p.Profiles {
 		if strings.TrimSuffix(profile.UUID, ".sdProfile") == profileUUID {
 			for _, page := range profile.Pages {
 				if strings.TrimSuffix(page.UUID, ".sdProfile") == pageUUID {
-					return page
+					return page, profile.Default
 				}
 			}
 			log.Error(("Page not found in Profile"),
 				zap.String("profile", profile.Name),
 				zap.String("page", pageUUID))
-			return nil
+			return nil, nil
 		}
 	}
 	log.Error(("Profile not found"),
 		zap.String("profile", profileUUID))
-	return nil
+	return nil, nil
 }
 
 func (p *ProfileList) InspectData() {
@@ -68,7 +69,8 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 	var rawData struct {
 		Name  string `json:"Name"`
 		Pages struct {
-			Pages []string `json:"Pages"`
+			Default string   `json:"Default"`
+			Pages   []string `json:"Pages"`
 		} `json:"Pages"`
 	}
 	if err := json.Unmarshal(data, &rawData); err != nil {
@@ -76,6 +78,7 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 	}
 	profile.UUID = UUID
 	profile.Name = rawData.Name
+	profile.Default = nil
 	profile.pagesNum = len(rawData.Pages.Pages)
 	for _, puuid := range rawData.Pages.Pages {
 		page, err := p.newPage(puuid, filepath.Join(p.path, UUID))
@@ -83,6 +86,11 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 			continue
 		}
 		profile.Pages = append(profile.Pages, &page)
+	}
+	page, err := p.newPage(rawData.Pages.Default, filepath.Join(p.path, UUID))
+	if err == nil {
+		profile.Pages = append(profile.Pages, &page)
+		profile.Default = &page
 	}
 	return profile, nil
 }
@@ -128,5 +136,6 @@ func (p *ProfileList) CreateProfileList() error {
 			}
 		}
 	}
+	fmt.Println(p.Current)
 	return nil
 }
