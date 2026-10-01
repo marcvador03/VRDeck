@@ -30,9 +30,6 @@ func (p *ProfileList) mergeDefaut(page *Pages, defaut *Pages) Pages {
 				tmp.Buttons = append(tmp.Buttons, button)
 			}
 		}
-		for _, button := range tmp.Buttons {
-			fmt.Printf("%v : %v\n", button.Col, button.Row)
-		}
 	}
 	return tmp
 }

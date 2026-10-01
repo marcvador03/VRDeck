@@ -4,7 +4,6 @@ import (
 	"VRDeck/internal/logger"
 	"VRDeck/internal/ws"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -133,9 +132,13 @@ func (p *ProfileList) CreateProfileList() error {
 					zap.Error(err))
 			} else {
 				p.Profiles = append(p.Profiles, profile)
+				log.Info("Added a New Profile to the list: ",
+					zap.String("Name", profile.Name),
+					zap.Int("Number of pages", len(profile.Pages)))
 			}
 		}
 	}
-	fmt.Println(p.Current)
+	log.Info("Number of Profiles scanned and stored: ",
+		zap.Int("Number of pages", len(p.Profiles)))
 	return nil
 }
