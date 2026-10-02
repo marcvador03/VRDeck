@@ -30,33 +30,37 @@ func (p *Profile) convertTiletoDigits(tile string) (int, int, error) {
 }
 
 func (p *Profile) getKeyLogic(Button *Buttons, details map[string]interface{}) {
+	var tap = []string{"S: ", "D: ", "L: "}
+	lines := make([]string, len(tap))
 	if Button.UUID != "com.elgato.streamdeck.keys.logic" {
 		return
 	}
-	actions, ok := details["Actions"].(map[string]interface{})
+	actions, ok := details["Actions"].([]interface{})
 	if !ok {
 		return
 	}
-	for _, a := range actions {
-		action, ok := a.(map[string]interface{})
+	for count, a := range actions {
+		if count > len(tap) {
+			return
+		}
+		action, _ := a.(map[string]interface{})
 		if !ok {
 			continue
 		}
-		states, ok := action["States"].(map[string]interface{})
+		states, _ := action["States"].([]interface{})
 		if !ok {
 			continue
 		}
 		for _, s := range states {
-			state, ok := s.(map[string]interface{})
+			state, _ := s.(map[string]interface{})
 			if !ok {
 				continue
 			}
-			if title, ok := state["Title"].(string); ok {
-				Button.KeyLogic = append(Button.KeyLogic, title)
-			}
+			title, _ := state["Title"].(string)
+			lines[count] = tap[count] + title
 		}
 	}
-
+	Button.KeyLogic = strings.Join(lines, "\n")
 }
 
 func (p *Profile) getSettings(Button *Buttons, details map[string]interface{}, pagePath string) {
@@ -112,6 +116,7 @@ func (p *Profile) addButton(tile string, details map[string]interface{}, pagePat
 	}
 	p.getSettings(&Button, details, pagePath)
 	p.getImage(&Button, firstState, pagePath)
+	p.getKeyLogic(&Button, details)
 	return Button, nil
 }
 

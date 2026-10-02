@@ -36,13 +36,13 @@ export class VRDeckXL extends GamepadUiView<HTMLDivElement, VRDeckXLProps> {
   });
 }
 
- public updateLabels(json: { buttons: { row: number; col: number; label: string; icon?: string, icontype?: string }[] }): void {
+ public updateLabels(json: { buttons: { row: number; col: number; label: string; icon?: string, icontype?: string, keylogic?: string}[] }): void {
     console.log("[VRDeck] Update called")
     this.cellContent.forEach((ref) => ref.instance.update("", null, undefined));
     json.buttons.forEach(button => {
       if (button.row >= 0 && button.row < 4 && button.col >= 0 && button.col < 8) {
         const index = button.row * 8 + button.col;
-        this.cellContent[index].instance.update(button.label, button.icon ?? null, button.icontype);
+        this.cellContent[index].instance.update(button.label, button.icon ?? null, button.icontype, button.keylogic);
       }
     });
   }
