@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -28,23 +29,23 @@ func (p *Profile) convertTiletoDigits(tile string) (int, int, error) {
 	return r, c, nil
 }
 
-func (p *Profile) createChildPage(Button *Buttons, details map[string]interface{}, pagePath string) {
-	if Button.UUID != "com.elgato.streamdeck.profile.openchild" {
-		return
-	}
+func (p *Profile) getSettings(Button *Buttons, details map[string]interface{}, pagePath string) {
 	settings, ok := details["Settings"].(map[string]interface{})
 	if !ok {
 		return
 	}
-	childUUID, ok := settings["profileUUID"].(string)
-	if !ok {
-		return
+	childUUID, ok := settings["ProfileUUID"].(string)
+	if ok {
+		parentPath := filepath.Dir(filepath.Dir(pagePath))
+		childPage, err := p.newPage(childUUID, parentPath)
+		if err == nil {
+			p.Pages = append(p.Pages, &childPage)
+			Button.ChildPage = &childPage
+		}
 	}
-	parentPath := filepath.Dir(filepath.Dir(pagePath))
-	childPage, err := p.newPage(childUUID, parentPath)
-	if err == nil {
-		p.Pages = append(p.Pages, &childPage)
-		Button.ChildPage = &childPage
+	pageIndex, ok := settings["PageIndex"].(float64)
+	if ok {
+		Button.PageIndex = strconv.Itoa(int(pageIndex))
 	}
 }
 
@@ -79,8 +80,8 @@ func (p *Profile) addButton(tile string, details map[string]interface{}, pagePat
 	} else {
 		Button.Title = title
 	}
-	p.createChildPage(&Button, details, pagePath)
-	Button.Icon, Button.IconType = p.getImage(firstState, pagePath, Button.UUID)
+	p.getSettings(&Button, details, pagePath)
+	p.getImage(&Button, firstState, pagePath)
 	return Button, nil
 }
 

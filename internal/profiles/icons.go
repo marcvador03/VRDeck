@@ -11,20 +11,28 @@ import (
 	"go.uber.org/zap"
 )
 
-func (p *Profile) getImage(firstState map[string]interface{}, pagePath string, UUID string) (string, string) {
+func (p *Profile) getImage(Button *Buttons, firstState map[string]interface{}, pagePath string) {
 	//	var button string
 	image, hasProfileImg := firstState["Image"].(string)
-	icon, hasElgatoImg := elgatoIcons[UUID]
+	icon, hasElgatoImg := elgatoIcons[Button.UUID]
+	Button.Icon = ""
+	Button.IconType = ""
 	switch {
 	case hasProfileImg:
-		return p.fetchImg(image, pagePath), ""
+		Button.Icon = p.fetchImg(image, pagePath)
+		return
 	case hasElgatoImg:
 		if icon.filename == "" {
-			return "", ""
+			return
 		}
-		return p.fetchImg(icon.filename, icon.path), "half"
+		if Button.UUID == "com.elgato.streamdeck.page.goto" {
+			Button.Title = Button.PageIndex
+		}
+		Button.Icon = p.fetchImg(icon.filename, icon.path)
+		Button.IconType = "half"
+		return
 	default:
-		return "", ""
+		return
 	}
 }
 
@@ -57,7 +65,7 @@ var elgatoIcons = map[string]iconEntry{
 
 	"com.elgato.streamdeck.page.goto": {
 		path:     "./resources/icons/",
-		filename: "",
+		filename: "clipboard.png",
 	},
 
 	"com.elgato.streamdeck.system.website": {

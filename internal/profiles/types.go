@@ -11,6 +11,7 @@ type Buttons struct {
 	IconType  string `json:"icontype,omitempty"`
 	UUID      string `json:"-"`
 	ChildPage *Pages `json:"-"`
+	PageIndex string `json:"-"`
 }
 
 type Pages struct {
