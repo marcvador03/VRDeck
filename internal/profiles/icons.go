@@ -169,4 +169,9 @@ var elgatoIcons = map[string]iconEntry{
 		path:     "./resources/icons/",
 		filename: "play_circle.png",
 	},
+
+	"com.elgato.streamdeck.profile.backtoparent": {
+		path:     "./resources/icons/",
+		filename: "arrow_enter_up.png",
+	},
 }
