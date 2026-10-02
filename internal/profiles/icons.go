@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (p *ProfileList) getImage(firstState map[string]interface{}, pagePath string, UUID string) (string, string) {
+func (p *Profile) getImage(firstState map[string]interface{}, pagePath string, UUID string) (string, string) {
 	//	var button string
 	image, hasProfileImg := firstState["Image"].(string)
 	icon, hasElgatoImg := elgatoIcons[UUID]
@@ -28,7 +28,7 @@ func (p *ProfileList) getImage(firstState map[string]interface{}, pagePath strin
 	}
 }
 
-func (p *ProfileList) fetchImg(imageUrl string, pagePath string) string {
+func (p *Profile) fetchImg(imageUrl string, pagePath string) string {
 	log := logger.GetDefaultLogger()
 	path := filepath.Join(pagePath, imageUrl)
 	img, err := os.ReadFile(path)

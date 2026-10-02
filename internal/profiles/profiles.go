@@ -94,7 +94,7 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 	profile.Current = nil
 	profile.pagesNum = len(rawData.Pages.Pages)
 	for _, puuid := range rawData.Pages.Pages {
-		page, err := p.newPage(puuid, filepath.Join(p.path, UUID))
+		page, err := profile.newPage(puuid, filepath.Join(p.path, UUID))
 		if err != nil {
 			continue
 		}
@@ -103,7 +103,7 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 			profile.Current = &page
 		}
 	}
-	page, err := p.newPage(rawData.Pages.Default, filepath.Join(p.path, UUID))
+	page, err := profile.newPage(rawData.Pages.Default, filepath.Join(p.path, UUID))
 	if err == nil {
 		profile.Pages = append(profile.Pages, &page)
 		profile.Default = &page

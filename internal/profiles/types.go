@@ -3,13 +3,14 @@ package profiles
 import "VRDeck/internal/ws"
 
 type Buttons struct {
-	Row      int    `json:"row"`
-	Col      int    `json:"col"`
-	Title    string `json:"label"`
-	ActionID string `json:"-"`
-	Icon     string `json:"icon,omitempty"`
-	IconType string `json:"icontype,omitempty"`
-	UUID     string `json:"-"`
+	Row       int    `json:"row"`
+	Col       int    `json:"col"`
+	Title     string `json:"label"`
+	ActionID  string `json:"-"`
+	Icon      string `json:"icon,omitempty"`
+	IconType  string `json:"icontype,omitempty"`
+	UUID      string `json:"-"`
+	ChildPage *Pages `json:"-"`
 }
 
 type Pages struct {
@@ -17,6 +18,7 @@ type Pages struct {
 	Name     string    `json:"-"`
 	Buttons  []Buttons `json:"buttons"`
 	pagePath string    `json:"-"`
+	//parentPage *Pages    `json:"-"`
 }
 
 type Profile struct {

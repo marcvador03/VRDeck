@@ -16,7 +16,7 @@ type Controller struct {
 	Buttons map[string]map[string]interface{} `json:"Actions"`
 }
 
-func (p *ProfileList) convertTiletoDigits(tile string) (int, int, error) {
+func (p *Profile) convertTiletoDigits(tile string) (int, int, error) {
 	cStr, rStr, ok := strings.Cut(tile, ",")
 	if !ok || len(rStr) != 1 || len(cStr) != 1 {
 		return -1, -1, fmt.Errorf("Error 1")
@@ -28,7 +28,27 @@ func (p *ProfileList) convertTiletoDigits(tile string) (int, int, error) {
 	return r, c, nil
 }
 
-func (p *ProfileList) addButton(tile string, details map[string]interface{}, pagePath string) (Buttons, error) {
+func (p *Profile) createChildPage(Button *Buttons, details map[string]interface{}, pagePath string) {
+	if Button.UUID != "com.elgato.streamdeck.profile.openchild" {
+		return
+	}
+	settings, ok := details["Settings"].(map[string]interface{})
+	if !ok {
+		return
+	}
+	childUUID, ok := settings["profileUUID"].(string)
+	if !ok {
+		return
+	}
+	parentPath := filepath.Dir(filepath.Dir(pagePath))
+	childPage, err := p.newPage(childUUID, parentPath)
+	if err == nil {
+		p.Pages = append(p.Pages, &childPage)
+		Button.ChildPage = &childPage
+	}
+}
+
+func (p *Profile) addButton(tile string, details map[string]interface{}, pagePath string) (Buttons, error) {
 	Button := Buttons{}
 	row, col, err := p.convertTiletoDigits(tile)
 	if err != nil {
@@ -59,11 +79,12 @@ func (p *ProfileList) addButton(tile string, details map[string]interface{}, pag
 	} else {
 		Button.Title = title
 	}
+	p.createChildPage(&Button, details, pagePath)
 	Button.Icon, Button.IconType = p.getImage(firstState, pagePath, Button.UUID)
 	return Button, nil
 }
 
-func (p *ProfileList) addDetailPage(page *Pages, data []byte) error {
+func (p *Profile) addDetailPage(page *Pages, data []byte) error {
 	var rawData struct {
 		Controllers []Controller `json:"Controllers"`
 		Name        string       `json:"Name"`
@@ -86,7 +107,7 @@ func (p *ProfileList) addDetailPage(page *Pages, data []byte) error {
 	return nil
 }
 
-func (p *ProfileList) newPage(UUID string, path string) (Pages, error) {
+func (p *Profile) newPage(UUID string, path string) (Pages, error) {
 	log := logger.GetDefaultLogger()
 	page := Pages{
 		UUID:     UUID,
