@@ -3,15 +3,16 @@ package profiles
 import "VRDeck/internal/ws"
 
 type Buttons struct {
-	Row       int    `json:"row"`
-	Col       int    `json:"col"`
-	Title     string `json:"label"`
-	ActionID  string `json:"-"`
-	Icon      string `json:"icon,omitempty"`
-	IconType  string `json:"icontype,omitempty"`
-	UUID      string `json:"-"`
-	ChildPage *Pages `json:"-"`
-	PageIndex string `json:"-"`
+	Row       int      `json:"row"`
+	Col       int      `json:"col"`
+	Title     string   `json:"label"`
+	ActionID  string   `json:"-"`
+	Icon      string   `json:"icon,omitempty"`
+	IconType  string   `json:"icontype,omitempty"`
+	UUID      string   `json:"-"`
+	ChildPage *Pages   `json:"-"`
+	PageIndex string   `json:"-"`
+	KeyLogic  []string `json:"keylogic"`
 }
 
 type Pages struct {

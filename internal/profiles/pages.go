@@ -29,6 +29,36 @@ func (p *Profile) convertTiletoDigits(tile string) (int, int, error) {
 	return r, c, nil
 }
 
+func (p *Profile) getKeyLogic(Button *Buttons, details map[string]interface{}) {
+	if Button.UUID != "com.elgato.streamdeck.keys.logic" {
+		return
+	}
+	actions, ok := details["Actions"].(map[string]interface{})
+	if !ok {
+		return
+	}
+	for _, a := range actions {
+		action, ok := a.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		states, ok := action["States"].(map[string]interface{})
+		if !ok {
+			continue
+		}
+		for _, s := range states {
+			state, ok := s.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			if title, ok := state["Title"].(string); ok {
+				Button.KeyLogic = append(Button.KeyLogic, title)
+			}
+		}
+	}
+
+}
+
 func (p *Profile) getSettings(Button *Buttons, details map[string]interface{}, pagePath string) {
 	settings, ok := details["Settings"].(map[string]interface{})
 	if !ok {
