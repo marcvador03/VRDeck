@@ -111,6 +111,8 @@ func (p *Profile) addButton(tile string, details map[string]interface{}, pagePat
 	title, ok := firstState["Title"].(string)
 	if !ok {
 		Button.Title = ""
+	} else if Button.UUID == "com.elgato.streamdeck.page.goto" {
+		Button.Title = p.Name
 	} else {
 		Button.Title = title
 	}
