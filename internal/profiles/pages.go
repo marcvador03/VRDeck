@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"unicode"
 
@@ -63,27 +62,29 @@ func (p *Profile) getKeyLogic(Button *Buttons, details map[string]interface{}) {
 	Button.KeyLogic = strings.Join(lines, "\n")
 }
 
-func (p *Profile) getSettings(Button *Buttons, details map[string]interface{}, pagePath string) {
+func (p *Profile) getSettings(Button *Buttons, details map[string]interface{}, page *Pages) {
 	settings, ok := details["Settings"].(map[string]interface{})
 	if !ok {
 		return
 	}
-	childUUID, ok := settings["ProfileUUID"].(string)
-	if ok {
-		parentPath := filepath.Dir(filepath.Dir(pagePath))
-		childPage, err := p.newPage(childUUID, parentPath)
-		if err == nil {
-			p.Pages = append(p.Pages, &childPage)
-			Button.ChildPage = &childPage
-		}
-	}
+
+	// childUUID, ok := settings["ProfileUUID"].(string)
+	// if ok {
+	// 	parentPath := filepath.Dir(filepath.Dir(page.pagePath))
+	// 	childPage, err := p.newPage(childUUID, parentPath)
+	// 	if err == nil {
+	// 		p.Pages = append(p.Pages, &childPage)
+	// 		Button.ChildPage = &childPage
+	// 	}
+	// }
 	pageIndex, ok := settings["PageIndex"].(float64)
-	if ok {
-		Button.PageIndex = strconv.Itoa(int(pageIndex))
+	if ok && Button.UUID == "com.elgato.streamdeck.page.goto" && (int(pageIndex) >= 0 || int(pageIndex) < len(p.Pages)) {
+		/*updating Title will be done before sending data as the page may not have been created yet*/
+		Button.TitleRef = p.Pages[int(pageIndex)]
 	}
 }
 
-func (p *Profile) addButton(tile string, details map[string]interface{}, pagePath string) (Buttons, error) {
+func (p *Profile) addButton(tile string, details map[string]interface{}, page *Pages) (Buttons, error) {
 	Button := Buttons{}
 	row, col, err := p.convertTiletoDigits(tile)
 	if err != nil {
@@ -111,13 +112,11 @@ func (p *Profile) addButton(tile string, details map[string]interface{}, pagePat
 	title, ok := firstState["Title"].(string)
 	if !ok {
 		Button.Title = ""
-	} else if Button.UUID == "com.elgato.streamdeck.page.goto" {
-		Button.Title = p.Name
 	} else {
 		Button.Title = title
 	}
-	p.getSettings(&Button, details, pagePath)
-	p.getImage(&Button, firstState, pagePath)
+	p.getSettings(&Button, details, page)
+	p.getImage(&Button, firstState, page.pagePath)
 	p.getKeyLogic(&Button, details)
 	return Button, nil
 }
@@ -135,7 +134,7 @@ func (p *Profile) addDetailPage(page *Pages, data []byte) error {
 	if len(rawData.Controllers) > 0 {
 		page.Name = rawData.Name
 		for tile, details := range rawData.Controllers[0].Buttons {
-			NewButton, err := p.addButton(tile, details, page.pagePath)
+			NewButton, err := p.addButton(tile, details, page)
 			if err != nil {
 				return fmt.Errorf("Wrong format in Actions %s %w", page.UUID, err)
 			}
@@ -145,15 +144,47 @@ func (p *Profile) addDetailPage(page *Pages, data []byte) error {
 	return nil
 }
 
-func (p *Profile) newPage(UUID string, path string) (Pages, error) {
+// func (p *Profile) newPage(UUID string, path string) (Pages, error) {
+// 	log := logger.GetDefaultLogger()
+// 	page := Pages{
+// 		UUID:     UUID,
+// 		pagePath: filepath.Join(path, "Profiles", UUID),
+// 	}
+// 	pagedir, err := os.ReadDir(page.pagePath)
+// 	if err != nil {
+// 		return Pages{}, fmt.Errorf("failed to read path %s: %w", page.pagePath, err)
+// 	}
+// 	for _, dir := range pagedir {
+// 		if dir.IsDir() {
+// 			manifestPath := filepath.Join(page.pagePath, "manifest.json")
+// 			data, err := os.ReadFile(manifestPath)
+// 			if err != nil {
+// 				log.Error("Error while reading manifest file",
+// 					zap.String("path", page.pagePath),
+// 					zap.Error(err))
+// 				continue
+// 			}
+// 			if err := p.addDetailPage(&page, data); err != nil {
+// 				log.Error("failed to add details",
+// 					zap.String("page", dir.Name()),
+// 					zap.Error(err))
+// 			}
+// 		}
+// 	}
+// 	return page, nil
+// }
+
+func (p *Profile) fillPage(page *Pages, UUID string, path string) {
 	log := logger.GetDefaultLogger()
-	page := Pages{
-		UUID:     UUID,
-		pagePath: filepath.Join(path, "Profiles", UUID),
-	}
+	page.UUID = UUID
+	page.pagePath = filepath.Join(path, "Profiles", UUID)
+
 	pagedir, err := os.ReadDir(page.pagePath)
 	if err != nil {
-		return Pages{}, fmt.Errorf("failed to read path %s: %w", page.pagePath, err)
+		log.Error("Failed to read path",
+			zap.String("path", page.pagePath),
+			zap.Error(err))
+		return
 	}
 	for _, dir := range pagedir {
 		if dir.IsDir() {
@@ -165,12 +196,12 @@ func (p *Profile) newPage(UUID string, path string) (Pages, error) {
 					zap.Error(err))
 				continue
 			}
-			if err := p.addDetailPage(&page, data); err != nil {
+			if err := p.addDetailPage(page, data); err != nil {
 				log.Error("failed to add details",
 					zap.String("page", dir.Name()),
 					zap.Error(err))
 			}
 		}
 	}
-	return page, nil
+	return
 }

@@ -25,9 +25,6 @@ func (p *Profile) getImage(Button *Buttons, firstState map[string]interface{}, p
 		if icon.filename == "" {
 			return
 		}
-		if Button.UUID == "com.elgato.streamdeck.page.goto" {
-			Button.Title = Button.PageIndex
-		}
 		Button.Icon = p.fetchImg(icon.filename, icon.path)
 		Button.IconType = "half"
 		return

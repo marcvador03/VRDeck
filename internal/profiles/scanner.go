@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,15 +20,26 @@ func (p *ProfileList) mergeDefaut(page *Pages, defaut *Pages) Pages {
 		return tmp
 	}
 	tmp.Buttons = nil
-	for _, defbutton := range defaut.Buttons {
-		tmp.Buttons = append(tmp.Buttons, defbutton)
-	}
 	for _, button := range page.Buttons {
-		for _, defbutton := range defaut.Buttons {
+		if button.TitleRef != nil && button.TitleRef.Name != "" {
+			button.Title = button.TitleRef.Name
+		} else if button.TitleRef != nil && button.TitleRef.Name == "" {
+			button.Title = strconv.Itoa(button.TitleRef.Index)
+		}
+		tmp.Buttons = append(tmp.Buttons, button)
+
+	}
+	for _, defbutton := range defaut.Buttons {
+		for _, button := range page.Buttons {
 			if defbutton.Col == button.Col && defbutton.Row == button.Row {
 				continue
 			} else {
-				tmp.Buttons = append(tmp.Buttons, button)
+				if defbutton.TitleRef != nil && defbutton.TitleRef.Name != "" {
+					defbutton.Title = defbutton.TitleRef.Name
+				} else if defbutton.TitleRef != nil && defbutton.TitleRef.Name == "" {
+					defbutton.Title = strconv.Itoa(defbutton.TitleRef.Index)
+				}
+				tmp.Buttons = append(tmp.Buttons, defbutton)
 			}
 		}
 	}
@@ -151,6 +163,11 @@ func (p *ProfileList) GetStartingPage(name string) error {
 		return err
 	}
 	pageToSend := p.mergeDefaut(page, defaut)
+	fmt.Printf("Pages: %v\n", len(p.getProfileByUUID(profileUUID).Pages))
+	for i, page := range p.getProfileByUUID(profileUUID).Pages {
+		fmt.Printf("Page #: %v   Title: %v   Index: %v\n", i, page.Name, page.Index)
+	}
+
 	p.sendPageUpdate(&pageToSend)
 	return nil
 }

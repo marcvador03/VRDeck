@@ -88,25 +88,26 @@ func (p *ProfileList) newProfile(UUID string, data []byte) (Profile, error) {
 	if err := json.Unmarshal(data, &rawData); err != nil {
 		return profile, err
 	}
+	profile.ProfileList = p
 	profile.UUID = strings.TrimSuffix(UUID, ".sdProfile")
 	profile.Name = rawData.Name
 	profile.Default = nil
 	profile.Current = nil
-	profile.pagesNum = len(rawData.Pages.Pages)
-	for _, puuid := range rawData.Pages.Pages {
-		page, err := profile.newPage(puuid, filepath.Join(p.path, UUID))
-		if err != nil {
-			continue
-		}
-		profile.Pages = append(profile.Pages, &page)
-		if rawData.Pages.Current == puuid {
-			profile.Current = &page
-		}
+	profile.pagesNum = len(rawData.Pages.Pages) + 1 // default page #0 is not in the list
+	profile.Pages = make([]*Pages, 0, profile.pagesNum)
+
+	for i := 0; i < profile.pagesNum; i++ {
+		profile.Pages = append(profile.Pages, &Pages{
+			Index: i,
+		})
 	}
-	page, err := profile.newPage(rawData.Pages.Default, filepath.Join(p.path, UUID))
-	if err == nil {
-		profile.Pages = append(profile.Pages, &page)
-		profile.Default = &page
+	profile.Default = profile.Pages[0]
+	profile.fillPage(profile.Pages[0], rawData.Pages.Default, filepath.Join(p.path, UUID))
+	for i, puuid := range rawData.Pages.Pages {
+		profile.fillPage(profile.Pages[i+1], puuid, filepath.Join(p.path, UUID))
+		if rawData.Pages.Current == puuid {
+			profile.Current = profile.Pages[i+1]
+		}
 	}
 	return profile, nil
 }
